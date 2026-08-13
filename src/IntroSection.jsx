@@ -74,7 +74,7 @@ export default function IntroSection() {
                 >
                   See the Problem
                 </button>
-                <a className="btn-secondary" href="/play.html" target="_blank" rel="noreferrer">
+                <a className="btn-secondary" href="https://beatourhand.vercel.app/" target="_blank" rel="noreferrer">
                   Play Our Game
                 </a>
               </div>

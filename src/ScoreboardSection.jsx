@@ -185,24 +185,11 @@ export default function ScoreboardSection() {
               <br />
               the model.
             </h2>
-            <div className="score-cols">
-              <div className="score-card score-you">
-                <span className="score-tag">You</span>
-                <h3>Your picks</h3>
-                <p>
-                  Live audience results land here once the game goes live. Scan the code in the
-                  corner to lock in your policy.
-                </p>
-              </div>
-              <div className="score-card score-model">
-                <span className="score-tag">The model</span>
-                <h3>A5 · Balanced ★</h3>
-                <p>
-                  First in 1,500 / 1,500 simulated futures. −$3.74B per year — the smallest
-                  loss on the table.
-                </p>
-              </div>
-            </div>
+            <iframe
+              className="score-board-frame"
+              src="https://beatourhand.vercel.app/board.html?qr=0"
+              title="Live scoreboard"
+            />
             <p className="score-closing">Did your intuition match the model?</p>
           </motion.div>
         </motion.div>

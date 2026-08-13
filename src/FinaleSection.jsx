@@ -35,10 +35,16 @@ export default function FinaleSection() {
   // it fades OUT near the end, overlapping the start of the card-slam
   // copy arrives early, while the hand is still rising — 11's exit flows
   // straight into this with no solo-hand pause
-  const copyOp = useTransform(
-    p,
-    (v) => clamp01((v - 0.14) / 0.16) * (1 - clamp01((v - 0.8) / 0.14)),
+  const out = (v) => 1 - clamp01((v - 0.8) / 0.14)
+  const copyOp = useTransform(p, (v) => clamp01((v - 0.14) / 0.16) * out(v))
+  // the six A5 settings deal themselves as mini cards, one per beat —
+  // the same cardboard grammar as every other table
+  const cardOps = [0, 1, 2, 3, 4, 5].map((i) =>
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useTransform(p, (v) => clamp01((v - (0.32 + i * 0.045)) / 0.05) * out(v)),
   )
+  const statsOp = useTransform(p, (v) => clamp01((v - 0.62) / 0.06) * out(v))
+  // complete ≈ 0.68 → generous buffer [0.68–0.8] → exit overlaps the slam
 
   useEffect(() => {
     const director = () => {
@@ -60,23 +66,20 @@ export default function FinaleSection() {
       const OPEN = desktop
         ? { x: vw * finaleTune.x, y: vh * finaleTune.y, scale: finaleTune.scale, rotZ: 2.0, rotX: 1.0, rotY: 1.4 }
         : { x: vw * 0.5, y: vh * 0.64, scale: 0.75, rotZ: 2.0, rotX: 1.0, rotY: 1.4 }
-      const BELOW = { ...OPEN, y: vh * 1.6 }
 
       setDeckTheme({ color: '#7B5EA7', glyph: '★' })
       setCardFace('deck')
       setCardSpin(true)
-      setCardMode(0)
       setPose('flat')
-      if (fp <= 0.25) {
-        // the hand rises back into the frame, empty
-        setHandTarget(mix(BELOW, OPEN, ease(fp / 0.25)), 0.12)
-        setCard(0)
-      } else if (fp <= 0.45) {
-        // the A5 card materializes above the palm — the bookend of the hero
+      if (fp <= 0.2) {
+        // 12 hands over HERE, pile in palm: the grip melts into the floating
+        // purple A5 while the hand finishes its flip — no rise from below
         setHandTarget(OPEN, 0.12)
-        setCard(ease((fp - 0.25) / 0.2))
+        setCardMode(1 - ease(fp / 0.2))
+        setCard(1)
       } else if (fp <= 0.86) {
         setHandTarget(OPEN, 0.12)
+        setCardMode(0)
         setCard(1)
       } else {
         // the copy is already fading — the hand BEGINS its turn here, so the
@@ -87,6 +90,7 @@ export default function FinaleSection() {
           : { x: vw * 0.5, y: vh * 0.4, scale: 0.68, rotZ: -0.05, rotX: -0.35, rotY: Math.PI + 0.1 }
         const t = 0.35 * ease((fp - 0.86) / 0.14)
         setHandTarget(mix(OPEN, PLACE, t), 0.12)
+        setCardMode(0)
         setCard(1)
       }
     }
@@ -107,6 +111,7 @@ export default function FinaleSection() {
     'Tax 30% + treatment earmark',
     'Federal integrity rules',
   ]
+  const GLYPHS = ['●', '▲', '■', '◆', '⬟', '★']
 
   return (
     <section className="finale-stage hand-stage" data-order="12" ref={stageRef}>
@@ -126,23 +131,25 @@ export default function FinaleSection() {
             funding, and federal integrity monitoring. The information cannot change this
             choice — so the recommendation is to act now.
           </p>
-          <div className="member-tags finale-tags">
-            {A5.map((t) => (
-              <span className="member-tag" key={t}>
-                {t}
-              </span>
+          <div className="fin-cards">
+            {A5.map((t, i) => (
+              <motion.div className="fin-card" key={t} style={{ opacity: cardOps[i] }}>
+                <i>{String(i + 1).padStart(2, '0')}</i>
+                <span>{t}</span>
+                <em>{GLYPHS[i]}</em>
+              </motion.div>
             ))}
           </div>
-          <div className="finale-stats">
+          <motion.div className="finale-stats" style={{ opacity: statsOp }}>
             <span>
               <b>≈ $4.9B/yr</b> better than the status quo
             </span>
             <span>
               <b>1,500 / 1,500</b> futures won
             </span>
-          </div>
-          <div className="cta-row">
-            <a className="btn-primary" href="/play.html" target="_blank" rel="noreferrer">
+          </motion.div>
+          <motion.div className="cta-row" style={{ opacity: statsOp }}>
+            <a className="btn-primary" href="https://beatourhand.vercel.app/" target="_blank" rel="noreferrer">
               Try to Beat It
             </a>
             <button
@@ -152,7 +159,7 @@ export default function FinaleSection() {
             >
               Back to the Table
             </button>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>

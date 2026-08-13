@@ -172,7 +172,7 @@ export default function FuturesSection() {
         scale: T.hcScale,
         tilt: (T.hcTilt * Math.PI) / 180,
       }
-      setCardFace(fp < 0.04 ? 'diagram' : 'futures') // the magician's swap
+      setCardFace('futures') // already transformed during 07's catch
       if (fp <= 0.86) {
         setHandTarget(PRESENT, 0.12)
         setPose('flat')

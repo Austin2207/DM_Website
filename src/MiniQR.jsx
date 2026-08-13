@@ -15,7 +15,7 @@ export default function MiniQR() {
   useEffect(() => {
     const url =
       new URLSearchParams(location.search).get('qrurl') ||
-      location.origin + '/play.html'
+      'https://beatourhand.vercel.app/'
     QRCode.toDataURL(url, {
       width: 220,
       margin: 1,
@@ -44,7 +44,7 @@ export default function MiniQR() {
   return (
     <motion.a
       className="mini-qr"
-      href="/play.html"
+      href="https://beatourhand.vercel.app/"
       target="_blank"
       rel="noreferrer"
       initial={{ opacity: 0, scale: 0.85, y: -8 }}

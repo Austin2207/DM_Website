@@ -108,7 +108,7 @@ export default function ModelSection() {
 
       setCardSpin(true)
       hand.cardOverride = null
-      setCardFace(mp <= 0.4 || mp > 0.9 ? 'diagram' : 'deck')
+      setCardFace(mp <= 0.4 ? 'diagram' : mp > 0.9 ? 'futures' : 'deck')
       if (mp > 0) {
         if (mp <= 0.12) {
           // the hand turns over — the card it carried out of 06 stays put,

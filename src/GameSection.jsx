@@ -37,7 +37,7 @@ export default function GameSection() {
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search)
-    const target = q.get('qrurl') || window.location.origin + '/play.html'
+    const target = q.get('qrurl') || 'https://beatourhand.vercel.app/'
     urlRef.current = target
     QRCode.toDataURL(target, { width: 600, margin: 2, color: { dark: '#0c0c0e', light: '#ffffff' } })
       .then(setQrUrl)

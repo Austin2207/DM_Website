@@ -1800,3 +1800,134 @@ a.btn-secondary {
   z-index: 62;
   pointer-events: none;
 }
+
+/* 13 · the recommendation dealt as six mini cards — same table language */
+.fin-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 24px;
+  max-width: 470px;
+}
+
+.fin-card {
+  position: relative;
+  min-height: 118px;
+  border: 1.5px solid color-mix(in srgb, #7b5ea7 42%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, #7b5ea7 4%, #fff);
+  padding: 26px 12px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #1c1c1e;
+}
+
+.fin-card i {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 700;
+  color: #7b5ea7;
+}
+
+.fin-card em {
+  position: absolute;
+  bottom: 6px;
+  right: 10px;
+  font-style: normal;
+  font-size: 11px;
+  color: color-mix(in srgb, #7b5ea7 65%, transparent);
+  transform: rotate(180deg);
+}
+
+@media (max-width: 767px) {
+  .fin-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 12 · eyes open — four watch-list cards, dealt and swept by the hand */
+.cav-stage {
+  height: 300vh;
+  background: #fff;
+}
+
+.cav-cards {
+  display: flex;
+  gap: 16px;
+  margin: 26px auto 0;
+  max-width: 1100px;
+  width: 100%;
+}
+
+.cav-slot {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.cav-card {
+  position: relative;
+  min-height: 250px;
+  height: 100%;
+  border: 1.5px solid rgba(107, 114, 128, 0.5);
+  border-radius: 14px;
+  background: rgba(107, 114, 128, 0.04);
+  padding: 34px 16px 30px;
+}
+
+.cav-card i {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.cav-card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+
+.cav-card p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.cav-card em {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-style: normal;
+  font-size: 11px;
+  color: rgba(107, 114, 128, 0.7);
+  transform: rotate(180deg);
+}
+
+.cav-chips {
+  margin: 26px auto 0;
+  max-width: 1100px;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .cav-cards {
+    flex-wrap: wrap;
+  }
+
+  .cav-slot {
+    flex: 1 1 45%;
+  }
+}
