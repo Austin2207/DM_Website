@@ -12,6 +12,11 @@ export const cardTune = {
   heldY: 235, // deck height in the gripped hand
   heldScale: 1.3, // card size while held
   bobHand: 10, // hand idle float amplitude (px)
+  // float<->held transition arc: a straight lerp would drag the card THROUGH
+  // the fingers, so mid-blend the card rises and comes toward the camera,
+  // clearing the hand before settling. Endpoints are unchanged.
+  arcLift: 90,
+  arcPush: 80,
 }
 
 // 08 · the futures composition — card offsets/tilts + hand pose, all

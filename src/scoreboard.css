@@ -45,74 +45,23 @@
   transform: rotate(180deg);
 }
 
+/* title column on the LEFT, the live board takes the whole right side */
 .score-content {
-  max-width: 880px;
-  padding: 0 6vw;
+  width: 100%;
+  max-width: 1560px;
+  padding: 0 3.5vw;
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) 1.7fr;
+  gap: clamp(28px, 4vw, 72px);
+  align-items: center;
 }
 
 .score-heading {
   margin-bottom: 24px;
 }
 
-.score-cols {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
-}
-
-.score-card {
-  border-radius: 18px;
-  padding: 22px 24px 24px;
-}
-
-.score-you {
-  border: 1.5px dashed rgba(0, 0, 0, 0.25);
-  color: rgba(0, 0, 0, 0.55);
-}
-
-.score-model {
-  border: 1.5px solid color-mix(in srgb, #7b5ea7 55%, transparent);
-  background: color-mix(in srgb, #7b5ea7 4%, #fff);
-}
-
-.score-tag {
-  display: inline-block;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  color: rgba(0, 0, 0, 0.45);
-  border-radius: 9999px;
-  padding: 4px 10px;
-  margin-bottom: 12px;
-}
-
-.score-model .score-tag {
-  border-color: color-mix(in srgb, #7b5ea7 45%, transparent);
-  color: #7b5ea7;
-}
-
-.score-card h3 {
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin-bottom: 8px;
-  color: #000;
-}
-
-.score-model h3 {
-  color: #7b5ea7;
-}
-
-.score-card p {
-  font-size: 13.5px;
-  line-height: 1.65;
-  color: rgba(0, 0, 0, 0.55);
-}
-
 .score-closing {
-  margin-top: 34px;
+  margin-top: 28px;
   font-size: clamp(1.2rem, 2vw, 1.7rem);
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -130,13 +79,14 @@
     inset: 3vh 4vw;
   }
 
-  .score-cols {
+  .score-content {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 20px;
+    padding: 0 7vw;
   }
 
-  .score-content {
-    padding: 0 7vw;
+  .score-board-frame {
+    height: 46vh;
   }
 }
 
@@ -167,10 +117,31 @@
   font-size: 20px;
 }
 
+/* the Thank-you, printed on the fabric — it rides in WITH the pull and
+   lands centered when the slide settles; no fly-up from below */
+.curtain-thanks {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 7vw;
+}
+
+.curtain-thanks p {
+  margin-top: 16px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.4);
+}
+
 /* the LIVE scoreboard (game site) embedded in the giant card */
 .score-board-frame {
   width: 100%;
-  height: 52vh;
+  height: 70vh;
   border: none;
   border-radius: 14px;
   background: #fff;

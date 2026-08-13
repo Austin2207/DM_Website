@@ -335,6 +335,12 @@ export default function HandRig({ useModel = false }) {
       V_HELD.set(ov ? ov.dx : 0, cardTune.heldY + (ov ? ov.dy : 0), 40).applyQuaternion(inner.current.quaternion)
       V_HELD.y += bobY
       cardGroup.current.position.lerpVectors(V_FLOAT, V_HELD, m)
+      // arc the blend: the straight float<->held line passes through the
+      // finger geometry, so mid-transition the card lifts and swings toward
+      // the camera, traveling OVER the hand instead of through it
+      const arc = Math.sin(Math.PI * m)
+      cardGroup.current.position.y += arc * cardTune.arcLift
+      cardGroup.current.position.z += arc * cardTune.arcPush
       Q_FLOAT.setFromEuler(
         E_TMP.set(0, spinAngle.current, Math.sin(spinAngle.current) * 0.05 + (ov ? ov.tilt : 0)),
       )

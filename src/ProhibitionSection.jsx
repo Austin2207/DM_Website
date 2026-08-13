@@ -34,10 +34,10 @@ const STEPS = [
 /* fade windows [start, width] — card 1 is placed by the hand, 2–5 cascade */
 const CARD_WINS = [
   [0.24, 0.08],
-  [0.48, 0.075],
-  [0.555, 0.075],
-  [0.63, 0.075],
-  [0.705, 0.075],
+  [0.44, 0.075],
+  [0.505, 0.075],
+  [0.57, 0.075],
+  [0.635, 0.075],
 ]
 
 /*
@@ -61,7 +61,9 @@ export default function ProhibitionSection() {
   const wrapOp = useTransform(p, (v) => 1 - clamp01((v - 0.93) / 0.07))
   const headOp = useTransform(p, (v) => clamp01((v - 0.02) / 0.06))
   const supportOp = useTransform(p, (v) => clamp01((v - 0.32) / 0.14))
-  const quoteOp = useTransform(p, (v) => clamp01((v - 0.78) / 0.07))
+  // the closing quote lands right after the chain — then a REAL completion
+  // buffer holds the finished table before the collect starts at 0.91
+  const quoteOp = useTransform(p, (v) => clamp01((v - 0.73) / 0.06))
   /* eslint-disable react-hooks/rules-of-hooks -- CARD_WINS is a module constant, hook order is stable */
   const cardOps = CARD_WINS.map(([a, w]) => useTransform(p, (v) => clamp01((v - a) / w)))
   const cardScales = CARD_WINS.map(([a, w]) =>
@@ -150,8 +152,9 @@ export default function ProhibitionSection() {
         // return to the left park while the supporting text fades in
         target = mix(PLACE1, PARK_LEFT, ease((pp - 0.32) / 0.14))
         setCard(0)
-      } else if (pp <= 0.88) {
-        // idle at the left while the chain cascades + completion buffer
+      } else if (pp <= 0.91) {
+        // idle at the left while the chain cascades, the quote lands, and
+        // the finished table HOLDS (quote full ≈0.79 → collect at 0.91)
         target = PARK_LEFT
         setCard(0)
       } else if (pp <= 0.98) {
@@ -159,7 +162,7 @@ export default function ProhibitionSection() {
         // gathering the five cards into a growing deck. Visibility is
         // recomputed from handX every tick, so reverse scrolling restores
         // the row. Arrows hide together with the card that precedes them.
-        const t = clamp01((pp - 0.88) / 0.1)
+        const t = clamp01((pp - 0.91) / 0.07)
         const handX = lerp(chain.left - 60, chain.right + 90, t)
         const links = Array.from(stageRef.current.querySelectorAll('.proh-chain .proh-link'))
         let prevHidden = false

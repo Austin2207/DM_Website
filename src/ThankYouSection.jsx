@@ -1,18 +1,6 @@
-import { motion } from 'motion/react'
-
-/* 14 · Curtain call — the fingertips from the scoreboard stay in view. */
+/* 14 · Curtain call — the Thank-you is printed ON the white slide (see
+   ScoreboardSection's curtain), so the pull itself reveals it. This section
+   only provides the resting scroll runway beneath the settled curtain. */
 export default function ThankYouSection() {
-  return (
-    <section className="thanks-section" id="thanks">
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: false, amount: 0.6 }}
-        transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <h2 className="team-heading">Thank you.</h2>
-        <p>The Integrity Trade-Off · MS&amp;E 152 · Stanford 2026</p>
-      </motion.div>
-    </section>
-  )
+  return <section className="thanks-section" id="thanks" aria-hidden />
 }

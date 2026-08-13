@@ -35,7 +35,7 @@ export default function FinaleSection() {
   // it fades OUT near the end, overlapping the start of the card-slam
   // copy arrives early, while the hand is still rising — 11's exit flows
   // straight into this with no solo-hand pause
-  const out = (v) => 1 - clamp01((v - 0.8) / 0.14)
+  const out = (v) => 1 - clamp01((v - 0.84) / 0.12)
   const copyOp = useTransform(p, (v) => clamp01((v - 0.14) / 0.16) * out(v))
   // the six A5 settings deal themselves as mini cards, one per beat —
   // the same cardboard grammar as every other table
@@ -43,8 +43,8 @@ export default function FinaleSection() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useTransform(p, (v) => clamp01((v - (0.32 + i * 0.045)) / 0.05) * out(v)),
   )
-  const statsOp = useTransform(p, (v) => clamp01((v - 0.62) / 0.06) * out(v))
-  // complete ≈ 0.68 → generous buffer [0.68–0.8] → exit overlaps the slam
+  const statsOp = useTransform(p, (v) => clamp01((v - 0.6) / 0.06) * out(v))
+  // complete ≈ 0.66 → generous buffer [0.66–0.84] → exit overlaps the slam
 
   useEffect(() => {
     const director = () => {
@@ -90,7 +90,10 @@ export default function FinaleSection() {
           : { x: vw * 0.5, y: vh * 0.4, scale: 0.68, rotZ: -0.05, rotX: -0.35, rotY: Math.PI + 0.1 }
         const t = 0.35 * ease((fp - 0.86) / 0.14)
         setHandTarget(mix(OPEN, PLACE, t), 0.12)
-        setCardMode(0)
+        // the card floats in FRONT only while it must cover the wrist; the
+        // INSTANT the turn is perceptible they no longer align, so the card
+        // tucks behind the hand right here at the start of the rotation
+        setCardMode(clamp01((t - 0.06) / 0.12))
         setCard(1)
       }
     }

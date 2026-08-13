@@ -66,9 +66,9 @@ export default function ScoreboardSection() {
         setOnStage(show)
       }
 
-      // the WHITE ending slide: pulled in from the left over [0.62–0.92] and
-      // it STAYS — it becomes the final stage; the Thank-you fades in on it
-      const coverT = ease(clamp01((sp - 0.62) / 0.3))
+      // the WHITE ending slide: pulled in from the left over [0.72–0.96] and
+      // it STAYS — it becomes the final stage; the Thank-you rides in on it
+      const coverT = ease(clamp01((sp - 0.72) / 0.24))
       curtainRaw.set(-100 + coverT * 100)
 
       if (!active || hand.performing) return
@@ -84,8 +84,9 @@ export default function ScoreboardSection() {
       const PLACE = desktop
         ? { x: vw * 0.5, y: vh * 0.42, scale: 0.95, rotZ: -0.05, rotX: -0.35, rotY: Math.PI + 0.1 }
         : { x: vw * 0.5, y: vh * 0.4, scale: 0.68, rotZ: -0.05, rotX: -0.35, rotY: Math.PI + 0.1 }
+      // fingertips rest under the LEFT text column, clear of the live board
       const PEEK = desktop
-        ? { x: vw * 0.5, y: vh * thanksTune.peekY, scale: 0.9, rotZ: 0, rotX: -0.1, rotY: Math.PI + 0.15 }
+        ? { x: vw * 0.24, y: vh * thanksTune.peekY, scale: 0.9, rotZ: 0, rotX: -0.1, rotY: Math.PI + 0.15 }
         : { x: vw * 0.5, y: vh * (thanksTune.peekY - 0.04), scale: 0.65, rotZ: 0, rotX: -0.1, rotY: Math.PI + 0.15 }
       // dragging fabric sideways — only the fingers and a sliver of hand
       // need to show at the edge; Austin tunes this via ?tune (幕布)
@@ -111,7 +112,7 @@ export default function ScoreboardSection() {
       setDeckTheme({ color: '#7B5EA7', glyph: '★' })
       setCardFace('deck')
       setCardSpin(true)
-      setCardMode(0)
+      setCardMode(1) // default: tucked (the pre-press branches override)
       if (sp <= 0) {
         // the finale began the turn at 0.35 — CONTINUE it through the
         // approach so the slam pose never freezes
@@ -119,12 +120,17 @@ export default function ScoreboardSection() {
         const t = 0.35 + 0.3 * ease(approach)
         setHandTarget(mix(OPEN, PLACE, t), 0.12)
         setPose(t > 0.55 ? 'grip' : 'flat')
+        // the tuck already happened at the START of the rotation (finale's
+        // pre-turn, t 0.06→0.18) — by the time the approach owns the hand
+        // (t ≥ 0.35) the card lives fully behind the palm
+        setCardMode(1)
         setCard(1)
       } else if (sp <= 0.2) {
         // finish the turn and press the card onto the screen
         const t = 0.65 + 0.35 * ease(sp / 0.2)
         setHandTarget(mix(OPEN, PLACE, t), 0.12)
         setPose('grip')
+        setCardMode(1)
         setCard(1 - clamp01((sp - 0.02) / 0.12))
       } else if (sp <= 0.36) {
         // slide down until only the fingertips peek over the bottom edge
@@ -132,20 +138,20 @@ export default function ScoreboardSection() {
         setHandTarget(mix(PLACE, PEEK, t), 0.12)
         setPose('grip')
         setCard(0)
-      } else if (sp <= 0.52) {
-        setHandTarget(PEEK, 0.12) // scoreboard reading buffer
+      } else if (sp <= 0.64) {
+        setHandTarget(PEEK, 0.12) // scoreboard reading buffer (extended)
         setPose('grip')
         setCard(0)
-      } else if (sp <= 0.62) {
+      } else if (sp <= 0.72) {
         // the hand walks to the far LEFT and takes the curtain edge
-        const t = ease((sp - 0.52) / 0.1)
+        const t = ease((sp - 0.64) / 0.08)
         setHandTarget(mix(PEEK, curtainGrip(0), t), 0.12)
         setPose('grip')
         setCard(0)
-      } else if (sp <= 0.92) {
+      } else if (sp <= 0.96) {
         // ...and PULLS the white ending slide across, left to right,
         // visibly attached to its leading edge the whole way
-        const coverNow = ease(clamp01((sp - 0.62) / 0.3))
+        const coverNow = ease(clamp01((sp - 0.72) / 0.24))
         setHandTarget(curtainGrip(coverNow), 0.12)
         setPose('grip')
         setCard(0)
@@ -176,21 +182,23 @@ export default function ScoreboardSection() {
           <span className="score-corner tl">★</span>
           <span className="score-corner br">★</span>
           <motion.div className="score-content" style={{ opacity: contentOp }}>
-            <div className="subtitle">
-              <span className="subtitle-dot" />
-              <span>14 · The scoreboard</span>
+            <div className="score-copy">
+              <div className="subtitle">
+                <span className="subtitle-dot" />
+                <span>14 · The scoreboard</span>
+              </div>
+              <h2 className="team-heading score-heading">
+                You vs.
+                <br />
+                the model.
+              </h2>
+              <p className="score-closing">Did your intuition match the model?</p>
             </div>
-            <h2 className="team-heading score-heading">
-              You vs.
-              <br />
-              the model.
-            </h2>
             <iframe
               className="score-board-frame"
               src="https://beatourhand.vercel.app/board.html?qr=0"
               title="Live scoreboard"
             />
-            <p className="score-closing">Did your intuition match the model?</p>
           </motion.div>
         </motion.div>
       </div>
@@ -200,7 +208,14 @@ export default function ScoreboardSection() {
             className="score-curtain"
             style={{ x: curtainX, display: onStage ? 'block' : 'none' }}
             aria-hidden
-          />,
+          >
+            {/* printed ON the fabric — the pull itself reveals it; nothing
+                flies in from below */}
+            <div className="curtain-thanks">
+              <h2 className="team-heading">Thank you.</h2>
+              <p>The Integrity Trade-Off · MS&amp;E 152 · Stanford 2026</p>
+            </div>
+          </motion.div>,
           document.body,
         )}
     </section>

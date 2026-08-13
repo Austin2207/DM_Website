@@ -89,7 +89,7 @@ export default function CaveatsSection() {
       const outT = 1 - clamp01((tp - 0.92) / 0.08)
       headerRaw.set(Math.min(clamp01((tp - 0.02) / 0.06), outT))
       chipsRaw.set(Math.min(clamp01((tp - 0.58) / 0.06), outT))
-      const sweepT = clamp01((tp - 0.78) / 0.14)
+      const sweepT = clamp01((tp - 0.84) / 0.08)
       cardRaws.forEach((mv, i) => {
         const dealt = clamp01((tp - BEATS[i][1]) / 0.05)
         const swept = sweepT >= (4 - i) / 5 ? 0 : 1
@@ -155,12 +155,12 @@ export default function CaveatsSection() {
         const t = ease((tp - 0.56) / 0.08)
         setHandTarget(mix(placeAt(3), PARK_RIGHT, t), 0.12)
         setCard(0)
-      } else if (tp <= 0.78) {
-        setHandTarget(PARK_RIGHT, 0.12) // completion buffer
+      } else if (tp <= 0.84) {
+        setHandTarget(PARK_RIGHT, 0.12) // completion buffer (extended)
         setCard(0)
       } else if (tp <= 0.92) {
         // the sweep: RIGHT → LEFT, straight from the park — no detour
-        const t = clamp01((tp - 0.78) / 0.14)
+        const t = clamp01((tp - 0.84) / 0.08)
         const handX = first && last ? lerp(last.right + 90, first.left - 60, t) : vw * 0.5
         setHandTarget(
           {
