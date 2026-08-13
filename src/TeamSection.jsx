@@ -43,11 +43,11 @@ const TEAM = [
     glyph: '▲',
     photo: '/team/harley.jpg',
     pos: '62% 30%',
-    role: 'Framing & Values',
+    role: 'Framing',
     line: 'Rising high-school senior at Stanford Summer Session.',
     tags: ['Boston', 'Stanford Summer Session', 'Business analytics', 'Volleyball', 'Golf'],
     detail:
-      'Harley led the framing of the federal decision and the value trade-offs — Sections 1–2 of the report. A rising high-school senior from Boston attending Stanford Summer Session, aiming at business analytics. Plays volleyball, basketball — and golf.',
+      'Harley led the framing of the federal decision — Sections 1–2 of the report. A rising high-school senior from Boston attending Stanford Summer Session, aiming at business analytics. Plays volleyball, basketball — and golf.',
   },
   {
     id: 'davis',

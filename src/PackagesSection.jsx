@@ -228,7 +228,7 @@ export default function PackagesSection() {
             <br />
             six packages.
           </h2>
-          <p className="team-hint">Every real bill is one of these hands. Click a card — its six switches.</p>
+          <p className="team-hint">Any real bill is a setting of the same six levers. Click a card — its six switches.</p>
         </motion.div>
 
         <div className="levers-row">

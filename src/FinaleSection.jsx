@@ -109,9 +109,9 @@ export default function FinaleSection() {
   const A5 = [
     'All adults 21+ may bet',
     'Prediction markets regulated + taxed',
-    'No props / micro-bets',
+    'No micro-bets',
     'Basic player protections',
-    'Tax 30% + treatment earmark',
+    'Higher tax + treatment earmark',
     'Federal integrity rules',
   ]
   const GLYPHS = ['●', '▲', '■', '◆', '⬟', '★']

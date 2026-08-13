@@ -26,15 +26,15 @@ const isDesktop = () =>
 const ROWS = [
   {
     t: 'Scandal cost & frequency carry the case',
-    d: 'r = 0.80 and 0.50 — assessed from a small, non-public sample of court records. The margin moves; the ranking doesn’t.',
+    d: 'r = 0.80 and 0.50 — assessed from a small sample of federal court records. The margin moves; the ranking doesn’t.',
   },
   {
     t: 'The illegal market is held fixed (≈$84B)',
     d: 'Tighter packages (A2, A4, A6) likely push more volume underground than our channel shares capture.',
   },
   {
-    t: 'The rules-work multiplier rests on one case',
-    d: '×0.5–1.3, anchored on the UK card-ban lesson — a thin base for a parameter that scales everything.',
+    t: 'The rules-work multiplier rests on thin evidence',
+    d: '×0.5–1.3, anchored on a few overseas evaluations (UK, Germany, Sweden) — a thin base for a parameter that scales everything.',
   },
   {
     t: 'States sit outside the frame',

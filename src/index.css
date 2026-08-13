@@ -312,6 +312,15 @@ button {
   font-size: clamp(1rem, 1.5vw, 1.35rem);
   font-weight: 500;
   letter-spacing: -0.01em;
+}
+
+/* the two-doors setup line above the big question */
+.intro-lead {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: rgba(0, 0, 0, 0.45);
+  margin-bottom: 10px;
   color: #000;
   pointer-events: none;
 }

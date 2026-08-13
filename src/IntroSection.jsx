@@ -113,6 +113,7 @@ export default function IntroSection() {
             creates harm.
           </h2>
           <div className="member-tags">
+            <span className="member-tag">≈$22.4B lost by bettors · 2025</span>
             <span className="member-tag">Addiction</span>
             <span className="member-tag">≈$84B illegal market</span>
             <span className="member-tag">Match fixing · 34 indicted, NBA 2025</span>
@@ -121,6 +122,10 @@ export default function IntroSection() {
 
         {/* the question of the whole talk — lands after both sides are in */}
         <motion.div className="intro-question" style={{ opacity: qOp }}>
+          <p className="intro-lead">
+            States regulate the sportsbooks. The CFTC opened a second door — sports event
+            contracts. Nobody owns the federal question.
+          </p>
           So how should Congress regulate sports gambling to create the highest overall
           social value?
         </motion.div>

@@ -36,9 +36,12 @@ const makeFuture = (n) => {
   const h = Math.imul(n + 7, 2654435761) >>> 0
   // one full draw: all six alternatives, A5 first — spacings vary per future
   const a5 = -(2.0 + ((h >>> 6) % 371) / 100) // −2.0 … −5.7  (P90…P10)
+  // A2 and A4 draw INDEPENDENT gaps below A5 (overlapping ranges), so their
+  // order flips future to future — the report's percentiles cross, only A5's
+  // first place is invariant. A2: better upside, worse downside; A4 tighter.
   const a2 = a5 - (0.6 + ((h >>> 9) % 110) / 100)
-  const a4 = a2 - (0.05 + ((h >>> 11) % 60) / 100)
-  const a3 = a4 - (1.8 + ((h >>> 13) % 160) / 100)
+  const a4 = a5 - (0.7 + ((h >>> 11) % 91) / 100)
+  const a3 = Math.min(a2, a4) - (1.8 + ((h >>> 13) % 160) / 100)
   const a1 = a3 - (0.4 + ((h >>> 16) % 120) / 100)
   const a6 = a1 - (7.0 + ((h >>> 18) % 420) / 100)
   return {
