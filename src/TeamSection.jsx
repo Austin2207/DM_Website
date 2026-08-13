@@ -41,6 +41,8 @@ const TEAM = [
     initials: 'HD',
     color: '#B5484D',
     glyph: '▲',
+    photo: '/team/harley.jpg',
+    pos: '62% 30%',
     role: 'Framing & Values',
     line: 'Rising high-school senior at Stanford Summer Session.',
     tags: ['Boston', 'Stanford Summer Session', 'Business analytics', 'Volleyball', 'Golf'],
@@ -53,6 +55,8 @@ const TEAM = [
     initials: 'DD',
     color: '#4A6FA5',
     glyph: '●',
+    photo: '/team/davis.jpg',
+    pos: '45% 42%',
     role: 'Alternatives & Information',
     line: 'Industrial & Systems Engineering sophomore at NUS.',
     tags: ['NUS', 'Industrial & Systems Eng.', 'Tennis', 'Golf'],
@@ -65,6 +69,8 @@ const TEAM = [
     initials: 'AF',
     color: '#4E7D58',
     glyph: '■',
+    photo: '/team/austin.jpg',
+    pos: '60% 40%',
     role: 'Model & Engine',
     line: '3rd-year CS at USYD, raised in Hong Kong.',
     tags: ['Hong Kong', 'USYD · CS Year 3', 'Built the engine', 'GeNIe', 'Golf'],
@@ -405,11 +411,7 @@ export default function TeamSection() {
             <span className="subtitle-dot" />
             <span>02 · The team</span>
           </div>
-          <h2 className="team-heading">
-            Three golfers.
-            <br />
-            One decision.
-          </h2>
+          <h2 className="team-heading">The team.</h2>
           <p className="team-hint">Keep scrolling — the hand deals. Click a card — it gets its own page.</p>
         </motion.div>
 
@@ -426,7 +428,13 @@ export default function TeamSection() {
                   style={{ visibility: expanded === i ? 'hidden' : 'visible' }}
                   whileHover={expanded === null && dealt[i] ? { y: -6 } : {}}
                 >
-                  <div className="avatar" style={{ background: mm.color }}>{mm.initials}</div>
+                  <img
+                    className="member-photo"
+                    src={mm.photo}
+                    alt={mm.name}
+                    style={{ objectPosition: mm.pos }}
+                    draggable={false}
+                  />
                   <div className="member-name">
                     {mm.name} <span className="member-glyph" style={{ color: mm.color }}>{mm.glyph}</span>
                   </div>
@@ -468,7 +476,13 @@ export default function TeamSection() {
                   animate={{ ...cardBox }}
                   transition={{ duration: 0.6, ease: EASE }}
                 >
-                  <div className="avatar" style={{ background: m.color }}>{m.initials}</div>
+                  <img
+                    className="member-photo takeover-photo"
+                    src={m.photo}
+                    alt={m.name}
+                    style={{ objectPosition: m.pos }}
+                    draggable={false}
+                  />
                   <div className="member-name">
                     {m.name} <span className="member-glyph" style={{ color: m.color }}>{m.glyph}</span>
                   </div>

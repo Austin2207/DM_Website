@@ -408,6 +408,16 @@ button {
   letter-spacing: 0.02em;
 }
 
+/* real member photos on the dealt cards */
+.member-photo {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 14px;
+  display: block;
+  background: rgba(0, 0, 0, 0.05);
+}
+
 .member-name {
   font-size: 16px;
   font-weight: 600;
@@ -691,7 +701,7 @@ button {
 .takeover {
   position: fixed;
   inset: 0;
-  z-index: 52;
+  z-index: 52; /* below the hand (60) — it points at the expanded card */
   background: #ffffff;
 }
 
@@ -714,6 +724,14 @@ button {
   width: 84px;
   height: 84px;
   font-size: 24px;
+}
+
+.takeover-photo {
+  flex: 1 1 auto;
+  min-height: 0;
+  aspect-ratio: auto;
+  align-self: stretch;
+  width: auto;
 }
 
 .takeover-card .member-name {
@@ -745,7 +763,9 @@ button {
 
 .takeover-close {
   position: fixed;
-  top: 22px;
+  /* below the navbar band — the nav (z-70) sits above this overlay and
+     was swallowing clicks aimed at the X */
+  top: 84px;
   right: 22px;
   width: 40px;
   height: 40px;
