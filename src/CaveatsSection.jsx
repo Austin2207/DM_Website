@@ -29,7 +29,7 @@ const ROWS = [
     d: 'r = 0.80 and 0.50 — assessed from a small sample of federal court records. The margin moves; the ranking doesn’t.',
   },
   {
-    t: 'The illegal market is held fixed (≈$84B)',
+    t: 'We may understate the illegal market',
     d: 'Tighter packages (A2, A4, A6) likely push more volume underground than our channel shares capture.',
   },
   {

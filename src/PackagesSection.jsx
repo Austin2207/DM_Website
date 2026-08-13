@@ -36,9 +36,9 @@ export const PACKAGES = [
   { rank: 'A4', name: 'League-integrity', mean: '−$4.88B', color: '#C29B45', glyph: '◆',
     combo: [1, 1, 1, 1, 0, 1], note: 'Protect the games.' },
   { rank: 'A5', name: 'Balanced', mean: '−$3.74B', color: '#7B5EA7', glyph: '★',
-    combo: [0, 1, 1, 1, 2, 1], note: 'Our hand — wins all 1,500 futures.', star: true },
+    combo: [0, 1, 1, 1, 2, 1], note: 'Access, with real guardrails.', star: true },
   { rank: 'A6', name: 'Prohibition', mean: '−$18.61B', color: '#3E8E8C', glyph: '⬟',
-    combo: [2, 2, 2, 2, 1, 1], note: '0 wins in any future.' },
+    combo: [2, 2, 2, 2, 1, 1], note: 'Shut it all down.' },
 ]
 
 const isDesktop = () =>
@@ -228,7 +228,10 @@ export default function PackagesSection() {
             <br />
             six packages.
           </h2>
-          <p className="team-hint">Any real bill is a setting of the same six levers. Click a card — its six switches.</p>
+          <p className="team-hint">
+            Any real bill is a setting of the same six levers. Click a card — its six switches.
+            Scores stay hidden until the reveal.
+          </p>
         </motion.div>
 
         <div className="levers-row">
@@ -245,7 +248,9 @@ export default function PackagesSection() {
                       <span className="lever-idx">{pk.rank}</span>
                       <span className="lever-glyph">{pk.glyph}</span>
                       <span className="lever-name">{pk.name}</span>
-                      <span className="pk-mean">{pk.mean}<i>/yr</i></span>
+                      {/* scores deliberately withheld here — the audience is
+                          still playing the game; the reveal belongs to 09 */}
+                      <span className="pk-note">{pk.note}</span>
                       <span className="lever-corner">{pk.glyph}</span>
                     </div>
                     <div className="lever-face back">
@@ -260,7 +265,6 @@ export default function PackagesSection() {
                           </span>
                         ))}
                       </div>
-                      <span className="lever-back-hint">{pk.note}</span>
                     </div>
                   </div>
                 </div>
