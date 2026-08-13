@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beat Our Hand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color: #0c0c0e; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 26px 18px 170px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  h1 { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
+  .sub { font-size: 12px; color: rgba(0,0,0,.5); margin-bottom: 20px; line-height: 1.5; }
+  .target { font-size: 12px; font-weight: 600; color: rgba(0,0,0,.6); }
+  .lever { border: 1.5px solid var(--tc); border-radius: 14px; padding: 12px 12px 12px; margin-bottom: 12px;
+           background: color-mix(in srgb, var(--tc) 6%, #fff); }
+  .lever h2 { font-size: 13px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 7px; }
+  .lever h2 .g { color: var(--tc); font-size: 15px; }
+  .opts { display: flex; gap: 6px; flex-wrap: wrap; }
+  .opts button { flex: 1 1 auto; min-height: 40px; font: 500 11.5px 'Inter', sans-serif; padding: 6px 8px;
+                 border: 1px solid color-mix(in srgb, var(--tc) 45%, #fff); border-radius: 9px;
+                 background: #fff; color: #0c0c0e; cursor: pointer; }
+  .opts button.on { background: var(--tc); border-color: var(--tc); color: #fff; font-weight: 600; }
+  .score { position: fixed; left: 0; right: 0; bottom: 0; background: #0c0c0e; color: #fff;
+           padding: 14px 18px calc(16px + env(safe-area-inset-bottom)); }
+  .score .in { max-width: 560px; margin: 0 auto; }
+  .row1 { display: flex; justify-content: space-between; align-items: baseline; }
+  .you { font: 700 26px 'Inter', sans-serif; letter-spacing: -0.02em; }
+  .them { font-size: 12px; color: rgba(255,255,255,.65); text-align: right; line-height: 1.5; }
+  .verdict { margin-top: 6px; font-size: 12.5px; font-weight: 600; }
+  .verdict.win { color: #7fd77f; }
+  .verdict.lose { color: rgba(255,255,255,.8); }
+  .meta { margin-top: 4px; font-size: 11px; color: rgba(255,255,255,.55); }
+  .bar { position: relative; height: 6px; border-radius: 3px; background: rgba(255,255,255,.18); margin-top: 10px; }
+  .bar .fill { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: #fff; }
+  .bar .a5 { position: absolute; top: -3px; width: 2px; height: 12px; background: #7fd77f; }
+  .presetline { font-size: 11px; color: rgba(0,0,0,.45); margin: 4px 0 18px; }
+  .presetline a { color: inherit; }
+  footer { margin-top: 26px; font-size: 10.5px; color: rgba(0,0,0,.4); line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1>BEAT OUR HAND &#9824;</h1><span class="target">our hand: <b>&minus;$3.74B</b></span></header>
+  <p class="sub">Six switches make a federal sports-gambling policy. Set them, watch your score
+  &mdash; net social value, $B per year, computed by the same 1,500-future Monte Carlo as our report.
+  Beat &minus;$3.74B and you beat our hand.</p>
+  <div class="presetline">Starting point: A1 status quo (Congress does nothing).</div>
+  <div id="levers"></div>
+  <footer>MS&amp;E 152 &middot; The Integrity Trade-Off &middot; Harley Davis, Davis Dong, Austin Fan.
+  Same engine as the report: 1,500 common-random-number draws, seed 20260727.</footer>
+</div>
+<div class="score"><div class="in">
+  <div class="row1">
+    <span class="you" id="you">&minus;$5.96B</span>
+    <span class="them">our hand (A5)<br><b>&minus;$3.74B</b></span>
+  </div>
+  <div class="bar"><div class="fill" id="fill"></div><div class="a5" id="a5mark"></div></div>
+  <div class="verdict" id="verdict"></div>
+  <div class="meta" id="meta"></div>
+</div></div>
+<script>
+'use strict';
+/* ---------- seeded RNG + triangular ---------- */
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; } }
+function tri(u, lo, md, hi){ const f=(md-lo)/(hi-lo);
+  return u<f ? lo+Math.sqrt(u*(hi-lo)*(md-lo)) : hi-Math.sqrt((1-u)*(hi-lo)*(hi-md)); }
+
+/* ---------- uncertain parameters (low/base/high) ---------- */
+const THETA = [
+  {id:'nRisk',   lo:0.75, md:1, hi:1.3,  en:'# at-risk bettors ×',        zh:'风险玩家人数 ×'},
+  {id:'nProb',   lo:0.7,  md:1, hi:1.4,  en:'# problem gamblers ×',       zh:'问题赌徒人数 ×'},
+  {id:'lossMult',lo:0.75, md:1, hi:1.3,  en:'losses per person ×',        zh:'每人损失 ×'},
+  {id:'lamP',    lo:0.35, md:0.55, hi:0.8, en:'harm per $ lost (problem)', zh:'问题段每$损失的伤害 λ'},
+  {id:'lamR',    lo:0.1,  md:0.2, hi:0.35, en:'harm per $ lost (at-risk)', zh:'风险段每$损失的伤害 λ'},
+  {id:'ilMult',  lo:1.2,  md:1.5, hi:2.2, en:'illegal-channel harm ×',    zh:'非法渠道伤害 ×'},
+  {id:'attempts',lo:5,    md:10, hi:18,   en:'fixing attempts /yr',       zh:'假球企图 次/年'},
+  {id:'caseCost',lo:0.1,  md:0.3, hi:1.0, en:'cost per scandal $B',       zh:'单案成本 $B'},
+  {id:'eff',     lo:0.5,  md:1, hi:1.3,   en:'does regulation work? ×',   zh:'监管有效性 ×'},
+];
+const NDRAW = 1500;
+const DRAWS = (() => { const rng = mulberry32(20260727); const out = [];
+  for (let i=0;i<NDRAW;i++){ const t={}; THETA.forEach(p => t[p.id]=tri(rng(),p.lo,p.md,p.hi)); out.push(t); }
+  return out; })();
+
+/* ---------- the 6 levers ---------- */
+const LEVERS = [
+  {id:'who',  en:'Who may bet',        zh:'谁能赌',
+   opts:[{en:'everyone 21+',zh:'全部 21+'},{en:'no college markets',zh:'禁大学市场'},{en:'full prohibition',zh:'全面禁止'}]},
+  {id:'pm',   en:'Where they bet (prediction markets)', zh:'预测市场',
+   opts:[{en:'unregulated (today)',zh:'不管（现状）'},{en:'regulate + tax',zh:'监管+征税'},{en:'ban',zh:'禁止'}]},
+  {id:'prod', en:'Products allowed',   zh:'能赌什么',
+   opts:[{en:'everything',zh:'全部玩法'},{en:'no props / micro-bets',zh:'禁 prop/微型投注'},{en:'straight bets only',zh:'只许输赢盘'}]},
+  {id:'prot', en:'Player protection',  zh:'玩家保护',
+   opts:[{en:'none (today)',zh:'无（现状）'},{en:'basic: self-exclusion + card ban',zh:'基础：自我排除+禁信用卡'},{en:'strict: affordability checks',zh:'严格：负担能力审查'}]},
+  {id:'money',en:'Money',              zh:'钱怎么走',
+   opts:[{en:'tax 22% (today)',zh:'税 22%（现状）'},{en:'tax 30%',zh:'税 30%'},{en:'tax 30% + treatment earmark',zh:'税 30% + 专款治疗'}]},
+  {id:'integ',en:'Integrity regime',   zh:'诚信制度',
+   opts:[{en:'status quo',zh:'现状'},{en:'federal monitoring + insider ban',zh:'联邦监控+内部人禁令'}]},
+];
+
+const PRESETS = [
+  {id:'sq',   en:'Status quo',        zh:'现状',        pol:{who:0,pm:0,prod:0,prot:0,money:0,integ:0}},
+  {id:'ph',   en:'Public-health',     zh:'公共卫生包',  pol:{who:1,pm:2,prod:1,prot:2,money:2,integ:1}},
+  {id:'mkt',  en:'Market-liberal',    zh:'市场自由包',  pol:{who:0,pm:1,prod:0,prot:1,money:0,integ:0}},
+  {id:'lg',   en:'League-integrity',  zh:'联盟诚信包',  pol:{who:1,pm:1,prod:1,prot:1,money:0,integ:1}},
+  {id:'bal',  en:'Balanced',          zh:'平衡包',      pol:{who:0,pm:1,prod:1,prot:1,money:2,integ:1}},
+  {id:'proh', en:'Prohibitionist',    zh:'禁止包',      pol:{who:2,pm:2,prod:2,prot:2,money:1,integ:1}},
+];
+let policy = {...PRESETS[0].pol};
+let activePreset = 'sq';
+
+/* ---------- segments (millions of people, $ lost per person per year) ---------- */
+const SEG = [
+  {id:'rec',  n:50,  loss:100,  ch:[0.82,0.02,0.16], en:'Recreational', zh:'休闲玩家'},
+  {id:'risk', n:8.5, loss:900,  ch:[0.77,0.01,0.22], en:'At-risk',      zh:'风险玩家'},
+  {id:'prob', n:1.5, loss:6500, ch:[0.63,0.02,0.35], en:'Problem',      zh:'问题赌徒'},
+];
+
+/* ---------- the engine: evaluate(policy, theta) → outcomes ---------- */
+const W = {wS:1, wI:1, cs:0}; // weights & enjoyment (kept simple in v2)
+function evaluate(pol, th){
+  const eff = th.eff; // does regulation work as intended?
+  const dev = (mult) => 1 - (1-mult)*eff; // scale a lever's deviation from 1 by efficacy
+  // status-quo channel-harm baseline per segment: normalizes harm so the $7B anchor holds at status quo
+  const chH0 = {};
+  SEG.forEach(s0 => chH0[s0.id] = s0.ch[0] + s0.ch[1]*1.15 + s0.ch[2]*th.ilMult);
+  // 1. segment sizes & losses ($B/yr)
+  const segs = SEG.map(s => {
+    let n = s.n * (s.id==='risk' ? th.nRisk : s.id==='prob' ? th.nProb : 1);
+    return {id:s.id, n, L: n*s.loss*th.lossMult/1000, ch:[...s.ch]};
+  });
+  segs.forEach(s => {
+    // lever: who (dev applies to prohibition too — one efficacy θ governs all interventions)
+    if (pol.who===1){ s.L *= dev(s.id==='rec'?0.90 : s.id==='risk'?0.92 : 0.95); s.ch[2]+=0.02; s.ch[0]-=0.02; }
+    else if (pol.who===2){ s.L *= dev(s.id==='rec'?0.30 : s.id==='risk'?0.55 : 0.80); s.ch=[0,0,1]; }
+    // lever: pm
+    if (pol.pm===2 && pol.who!==2){ // ban PM: 60% -> legal, 25% -> IL, 15% quits (quit scaled by eff)
+      const pms=s.ch[1]; s.ch[1]=0; s.ch[0]+=pms*0.6; s.ch[2]+=pms*0.25; s.L*=(1-pms*0.15*eff);
+    }
+    if (pol.pm===1 && pol.who!==2){ s.ch[1]*=1.3; s.ch[2]-=Math.min(s.ch[2],0.03); s.ch[0]=1-s.ch[1]-s.ch[2]; }
+    // offshore evasion pushes (heavy bettors route around rules)
+    if (pol.prod>=1 && pol.who!==2 && s.id==='prob'){ s.ch[2]+=0.03; s.ch[0]-=0.03; }
+    if (pol.prot===1 && pol.who!==2){ s.ch[2]+=0.01; s.ch[0]-=0.01; }
+    if (pol.prot===2 && pol.who!==2){ const p=(s.id==='prob'?0.06:0.02); s.ch[2]+=p; s.ch[0]-=p; }
+    if (pol.money>=1 && pol.who!==2){ s.ch[2]+=0.02; s.ch[0]-=0.02; }
+    s.ch = s.ch.map(x => Math.max(0, x));
+    const tot = s.ch[0]+s.ch[1]+s.ch[2]; s.ch = s.ch.map(x => x/tot);
+    // products & protection cut losses ONLY in regulated channels — illegal books obey nothing
+    const regShare = s.ch[0]+s.ch[1];
+    let cut = 1;
+    if (pol.prod===1) cut *= dev(s.id==='prob'?0.78 : s.id==='risk'?0.90 : 0.97);
+    if (pol.prod===2) cut *= dev(s.id==='prob'?0.62 : s.id==='risk'?0.78 : 0.88);
+    if (pol.prot===1) cut *= dev(s.id==='prob'?0.93 : s.id==='risk'?0.96 : 1);
+    if (pol.prot===2) cut *= dev(s.id==='prob'?0.78 : s.id==='risk'?0.88 : 0.99);
+    s.L *= (1 - regShare*(1-cut));
+  });
+  // 2. channel losses
+  let Llegal=0, Lpm=0, Lil=0;
+  segs.forEach(s => { Llegal += s.L*s.ch[0]; Lpm += s.L*s.ch[1]; Lil += s.L*s.ch[2]; });
+  const totL = Llegal+Lpm+Lil;
+  // 3. revenue
+  const taxRate = pol.money===0 ? 0.22 : 0.30;
+  const excise = pol.who===2 ? 0 : Llegal*0.0245;                 // 0.25% of handle ≈ 2.45% of losses
+  const earm  = pol.money===2 ? 0.5*excise : 0;
+  const pmTaxed = pol.pm===1 ? Lpm*taxRate : 0;
+  const revenue = (pol.who===2?0:Llegal*taxRate) + excise + pmTaxed - earm;
+  // 4. social harm rides on losses; channel mix normalized to the status-quo baseline (protF kept soft
+  //    to avoid double counting with the loss cuts — the loss cut is the primary channel)
+  const protF = pol.prot===2 ? dev(0.90) : pol.prot===1 ? dev(0.97) : 1;
+  const pmHarm = pol.pm===1 ? 1.0 : 1.15;
+  const chH = s => (s.ch[0]*protF + s.ch[1]*pmHarm*protF + s.ch[2]*th.ilMult) / chH0[s.id];
+  let harm = 0;
+  const harmSegs = [];
+  segs.forEach(s => { const lam = s.id==='prob'?th.lamP : s.id==='risk'?th.lamR : 0;
+    const h = lam * s.L * chH(s); harmSegs.push(h); harm += h; });
+  if (pol.money===2) harm *= (1 - 0.03*eff);  // funded treatment
+  // 5. integrity: product/monitoring rules only reach the regulated share; offshore evades everything
+  const ilShare = totL>0 ? Lil/totL : 1;
+  const prodF = 1 - (1 - (pol.prod===2 ? 0.35 : pol.prod===1 ? 0.5 : 1)) * (1-ilShare);
+  const integF = 1 - (1 - (pol.integ===1 ? dev(0.5) : 1)) * (1-ilShare);
+  const monF = Math.min(2.0, 0.6 + 0.4*(ilShare/0.26));   // more offshore = more undetected fixing (capped)
+  const integrity = th.attempts * Math.max(0.12, prodF*integF*monF) * th.caseCost;
+  // 6. enjoyment + admin
+  const enjoy = W.cs * (segs[0].L);
+  const admin = (pol.who===2?0.5:0) + (pol.integ===1?0.02:0) + (pol.prot>0?0.02:0) + (pol.pm===1?0.01:0);
+  const utility = revenue + enjoy - W.wS*harm - W.wI*integrity - admin;
+  return {revenue, harm, integrity, enjoy, admin, utility, Llegal, Lpm, Lil, segs, harmSegs};
+}
+
+/* ---------- Monte Carlo over common random numbers ---------- */
+function mc(pol){
+  const us = DRAWS.map(t => evaluate(pol, t).utility);
+  const sorted = [...us].sort((a,b)=>a-b);
+  return { us, mean: us.reduce((a,b)=>a+b,0)/us.length,
+    p10: sorted[Math.floor(0.1*us.length)], p90: sorted[Math.floor(0.9*us.length)] };
+}
+
+/* ---------- game UI (design-side; engine above is verbatim from the model) ---------- */
+const THEME = {
+  who:   { g: '\u25CF', c: '#4A6FA5', name: 'Who may bet' },
+  pm:    { g: '\u25B2', c: '#B5484D', name: 'Where they bet (prediction markets)' },
+  prod:  { g: '\u25A0', c: '#4E7D58', name: 'Products allowed' },
+  prot:  { g: '\u25C6', c: '#C29B45', name: 'Player protection' },
+  money: { g: '\u2B1F', c: '#7B5EA7', name: 'The money' },
+  integ: { g: '\u2605', c: '#3E8E8C', name: 'Integrity rules' },
+};
+const player = { ...PRESETS[0].pol }; // start at status quo
+const A5 = mc(PRESETS.find(p => p.id === 'bal').pol);
+const SQ = mc(PRESETS[0].pol);
+
+const holder = document.getElementById('levers');
+LEVERS.forEach(lv => {
+  const d = document.createElement('div');
+  d.className = 'lever';
+  d.style.setProperty('--tc', THEME[lv.id].c);
+  d.innerHTML = '<h2><span class="g">' + THEME[lv.id].g + '</span>' + THEME[lv.id].name + '</h2>' +
+    '<div class="opts">' + lv.opts.map((o, i) =>
+      '<button data-lv="' + lv.id + '" data-i="' + i + '">' + o.en + '</button>').join('') + '</div>';
+  holder.appendChild(d);
+});
+
+function fmtB(x) { if (Math.abs(x) < 0.005) x = 0; return (x < 0 ? '\u2212' : '+') + '$' + Math.abs(x).toFixed(2) + 'B'; }
+
+function update() {
+  document.querySelectorAll('.opts button').forEach(b =>
+    b.classList.toggle('on', player[b.dataset.lv] === +b.dataset.i));
+  const M = mc(player);
+  const beatsA5 = M.us.filter((u, i) => u > A5.us[i]).length / NDRAW;
+  const beatsSQ = M.us.filter((u, i) => u > SQ.us[i]).length / NDRAW;
+  document.getElementById('you').textContent = fmtB(M.mean);
+  const lo = -20, hi = 0;
+  const pct = v => Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100));
+  const f = document.getElementById('fill');
+  f.style.left = '0'; f.style.width = pct(M.mean) + '%';
+  document.getElementById('a5mark').style.left = pct(A5.mean) + '%';
+  const v = document.getElementById('verdict');
+  if (M.mean > A5.mean) { v.className = 'verdict win'; v.textContent = 'You beat our hand?! Come tell us your six switches.'; }
+  else if (Math.abs(M.mean - A5.mean) < 0.005) { v.className = 'verdict win'; v.textContent = 'You FOUND our hand \u2014 this is A5, the Balanced package.'; }
+  else { v.className = 'verdict lose'; v.textContent = 'Our hand still wins by ' + fmtB(A5.mean - M.mean).replace('+', '') + ' per year.'; }
+  document.getElementById('meta').textContent =
+    'P10 ' + fmtB(M.p10) + ' \u00B7 P90 ' + fmtB(M.p90) + ' \u00B7 beats status quo in ' + Math.round(beatsSQ * 100) + '% of futures \u00B7 beats A5 in ' + Math.round(beatsA5 * 100) + '%';
+}
+holder.addEventListener('click', e => {
+  const b = e.target.closest('button[data-lv]');
+  if (!b) return;
+  player[b.dataset.lv] = +b.dataset.i;
+  update();
+});
+update();
+</script>
+</body>
+</html>

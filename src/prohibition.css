@@ -1,0 +1,253 @@
+/* ---------- 10 · why didn't prohibition win — pinned hand-stage ---------- */
+
+.proh-stage {
+  height: 320vh;
+  position: relative;
+}
+
+/* fills the pin: heading row up top, chain mid-low, punchline at the bottom */
+.proh-wrap {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.proh-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 44px;
+}
+
+/* the big stat block */
+.proh-stat {
+  flex-shrink: 0;
+  text-align: right;
+  padding-top: 52px;
+}
+
+.proh-stat-num {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 12px;
+  font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #3e8e8c;
+  font-variant-numeric: tabular-nums;
+}
+
+.proh-stat-glyph {
+  font-style: normal;
+  font-size: 0.38em;
+  color: #3e8e8c;
+}
+
+.proh-stat-sub {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* the causal chain — five mini playing cards joined by arrows */
+.proh-chain {
+  margin: auto 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.proh-link {
+  display: contents;
+}
+
+.proh-arrow {
+  flex-shrink: 0;
+  font-size: 18px;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.proh-arrow-v {
+  display: none;
+}
+
+.proh-card {
+  position: relative;
+  flex: 0 1 164px;
+  min-width: 0;
+  aspect-ratio: 3 / 4;
+  background: linear-gradient(
+    color-mix(in srgb, #3e8e8c 5%, #fff),
+    color-mix(in srgb, #3e8e8c 5%, #fff)
+  );
+  border: 1.5px solid rgba(62, 142, 140, 0.45);
+  border-radius: 14px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 14px;
+  text-align: center;
+}
+
+.proh-card-rank {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #3e8e8c;
+}
+
+.proh-card-glyph {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  font-size: 12px;
+  line-height: 1;
+  color: #3e8e8c;
+  transform: rotate(180deg);
+}
+
+.proh-card-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.proh-card-sub {
+  margin-top: 7px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+/* the punchline — anchored at the bottom of the pin */
+.proh-quote {
+  margin: 0 auto;
+  max-width: 660px;
+  text-align: center;
+  font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.4;
+  color: #000;
+}
+
+.proh-footnote {
+  margin: 16px auto 0;
+  max-width: 560px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* mobile — everything compacts to fit inside the 100vh pin;
+   the chain becomes a vertical stack of slim strips */
+@media (max-width: 767px) {
+  .proh-stage .team-pin {
+    padding: 64px 20px 22px;
+  }
+
+  .proh-top {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .proh-wrap .dq-lead {
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .proh-stat {
+    text-align: left;
+    padding-top: 0;
+  }
+
+  .proh-stat-num {
+    justify-content: flex-start;
+    font-size: 2rem;
+  }
+
+  .proh-stat-sub {
+    margin-top: 5px;
+    font-size: 11px;
+  }
+
+  .proh-chain {
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .proh-card {
+    flex: none;
+    width: min(300px, 100%);
+    aspect-ratio: auto;
+    border-radius: 10px;
+    padding: 9px 34px;
+  }
+
+  .proh-card-rank {
+    top: 50%;
+    left: 11px;
+    transform: translateY(-50%);
+    font-size: 11px;
+  }
+
+  .proh-card-glyph {
+    top: 50%;
+    bottom: auto;
+    right: 11px;
+    transform: translateY(-50%) rotate(180deg);
+    font-size: 11px;
+  }
+
+  .proh-card-title {
+    font-size: 13px;
+  }
+
+  .proh-card-sub {
+    margin-top: 3px;
+    font-size: 10.5px;
+    line-height: 1.35;
+  }
+
+  .proh-arrow {
+    font-size: 13px;
+  }
+
+  .proh-arrow-h {
+    display: none;
+  }
+
+  .proh-arrow-v {
+    display: block;
+  }
+
+  .proh-quote {
+    margin: 0;
+    text-align: left;
+    font-size: 1.05rem;
+  }
+
+  .proh-footnote {
+    margin: 10px 0 0;
+    text-align: left;
+    font-size: 11px;
+  }
+}

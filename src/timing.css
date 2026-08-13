@@ -1,0 +1,368 @@
+/* ---------- 11 · act now or study first (EVPI) — pinned hand stage ---------- */
+
+.tim-stage {
+  height: 340vh;
+  background: #fff;
+}
+
+/* one wrapper so the whole board fades out in place at the exit */
+.tim-wrap {
+  width: 100%;
+}
+
+.team-header.tim-header {
+  margin-bottom: 28px;
+}
+
+.tim-body {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* --- the two option cards, playing-card style, dealt by the hand --- */
+.tim-options {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 22px;
+}
+
+.tim-slot {
+  position: relative;
+  width: min(210px, 42vw);
+}
+
+/* empty slot: a subtle dashed outline where a card will land */
+.tim-slot-outline {
+  position: absolute;
+  inset: 0;
+  border: 1.5px dashed rgba(0, 0, 0, 0.16);
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+.tim-drop {
+  width: 100%;
+}
+
+.tim-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  cursor: pointer;
+  perspective: 900px;
+  user-select: none;
+}
+
+.tim-card-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tim-card.tim-flipped .tim-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* both cards land with the SAME quiet border — equal weight until the
+   EVPI verdict; the selection beat then strengthens "Act now" */
+.tim-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 16px;
+  text-align: center;
+  overflow: hidden;
+  transition:
+    border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tim-face.tim-back {
+  transform: rotateY(180deg);
+}
+
+/* the selection beat: strong border fades in (inset ring — no layout shift) */
+.tim-selected .tim-face {
+  border-color: #000;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.1), inset 0 0 0 1px #000;
+}
+
+/* corner index, like a playing card */
+.tim-rank {
+  position: absolute;
+  top: 12px;
+  left: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+.tim-rank b {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tim-rank i {
+  font-style: normal;
+  font-size: 9px;
+}
+
+.tim-rank-flip {
+  top: auto;
+  left: auto;
+  bottom: 12px;
+  right: 13px;
+  transform: rotate(180deg);
+}
+
+/* ✓ badge: hidden until the selection beat, then fades/scales in */
+.tim-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #000;
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tim-selected .tim-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.tim-glyph {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.tim-title {
+  margin-top: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.tim-small {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.tim-back-name {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.tim-back-copy {
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: rgba(0, 0, 0, 0.7);
+  max-width: 200px;
+}
+
+.tim-selected .tim-back-copy {
+  color: #000;
+}
+
+.tim-back-hint {
+  margin-top: 12px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.tim-flip-cue {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 11.5px;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* --- the withheld number (appears with the header; resolves later) --- */
+.tim-hero {
+  margin-top: clamp(22px, 4vh, 40px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.tim-hero-stat {
+  font-size: clamp(2.3rem, 6vw, 4.6rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* the "?" and "$0.00B" share one slot and crossfade in place */
+.tim-swap {
+  display: inline-grid;
+  justify-items: center;
+  vertical-align: top;
+}
+
+.tim-swap > span {
+  grid-area: 1 / 1;
+}
+
+.tim-hero-sub {
+  font-size: 12.5px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* --- the logic chain (folds in with the $0.00B reveal) + punchline --- */
+.tim-chain {
+  margin-top: clamp(16px, 3vh, 28px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.tim-chain-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tim-chain-arrow {
+  font-size: 16px;
+  font-weight: 300;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.tim-pill {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: #fff;
+  border-radius: 9999px;
+  padding: 9px 17px;
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tim-punchline {
+  margin: clamp(16px, 3vh, 30px) auto 0;
+  max-width: 620px;
+  text-align: center;
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.tim-punchline b {
+  font-weight: 600;
+  color: #000;
+}
+
+/* --- fit on short or narrow viewports --- */
+@media (max-height: 860px) {
+  .team-header.tim-header {
+    margin-bottom: 18px;
+  }
+
+  .team-heading.tim-heading {
+    font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+  }
+
+  .dq-lead.tim-lead {
+    margin-top: 10px;
+    font-size: 13.5px;
+  }
+
+  .tim-slot {
+    width: min(168px, 40vw);
+  }
+
+  .tim-glyph {
+    font-size: 26px;
+  }
+
+  .tim-title {
+    font-size: 15px;
+  }
+
+  .tim-back-copy {
+    font-size: 11px;
+    line-height: 1.55;
+  }
+
+  .tim-back-hint {
+    margin-top: 8px;
+  }
+
+  .tim-hero-stat {
+    font-size: clamp(1.9rem, 5vw, 3.2rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .tim-options {
+    gap: 14px;
+  }
+
+  .tim-slot {
+    width: min(168px, 43vw);
+  }
+
+  .tim-face {
+    padding: 14px 12px;
+  }
+
+  .tim-pill {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+/* fit the whole sequence inside one pinned viewport (header was being
+   pushed up under the navbar by the centered flex) */
+.tim-stage .pin-inner {
+  justify-content: flex-start;
+  padding-top: 86px;
+}
+
+.team-header.tim-header {
+  margin-bottom: 14px;
+}
+
+.tim-stage .team-heading {
+  font-size: clamp(1.7rem, 3.2vw, 2.5rem);
+}
+
+.tim-stage .dq-lead {
+  margin-top: 10px;
+  font-size: 13.5px;
+}

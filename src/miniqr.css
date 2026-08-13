@@ -1,0 +1,47 @@
+/* ---------- persistent mini QR (top-right, after the game stage) ---------- */
+.mini-qr {
+  position: fixed;
+  top: 84px;
+  right: 22px;
+  z-index: 65;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 14px;
+  padding: 8px;
+  text-decoration: none;
+  transition: border-color 0.25s ease;
+}
+
+.mini-qr:hover {
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.mini-qr img {
+  width: 84px;
+  height: 84px;
+  display: block;
+  border-radius: 8px;
+}
+
+.mini-qr-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.55);
+  text-align: center;
+  margin-top: 5px;
+}
+
+@media (max-width: 767px) {
+  .mini-qr {
+    top: 70px;
+    right: 12px;
+  }
+
+  .mini-qr img {
+    width: 64px;
+    height: 64px;
+  }
+}

@@ -1,0 +1,337 @@
+/* ============ 06 · Clear values — pinned hand-stage + card equation (.val-) ============ */
+
+.values-stage {
+  height: 320vh;
+  background: #fff;
+  position: relative;
+}
+
+/* the pin is a top-anchored whiteboard, not a centered one */
+.pin-inner.values-pin {
+  justify-content: flex-start;
+  padding: 86px 20px 24px;
+}
+
+.values-board {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* --- compact header (everything must fit 100vh) --- */
+.values-head {
+  max-width: 640px;
+}
+
+.values-heading {
+  font-size: clamp(1.6rem, 3.4vw, 2.5rem);
+}
+
+.values-lead {
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin-top: 12px;
+  max-width: 540px;
+}
+
+.val-eq-row {
+  margin-top: 26px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* --- the NSV slot: dashed placeholder until the hand delivers the card --- */
+.val-slot {
+  position: relative;
+  flex: 0 1 138px;
+  min-width: 106px;
+  aspect-ratio: 5 / 7;
+}
+
+.val-ghost {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  border: 1.5px dashed rgba(0, 0, 0, 0.28);
+  background: rgba(0, 0, 0, 0.015);
+}
+
+.val-slot .val-card {
+  position: absolute;
+  inset: 0;
+  flex: none;
+  min-width: 0;
+  max-width: none;
+  aspect-ratio: auto;
+}
+
+/* --- playing cards --- */
+.val-card {
+  position: relative;
+  flex: 0 1 138px;
+  min-width: 106px;
+  aspect-ratio: 5 / 7;
+  perspective: 900px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.val-card.val-nsv.val-open {
+  cursor: default;
+}
+
+.val-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.val-card.val-flipped .val-inner {
+  transform: rotateY(180deg);
+}
+
+.val-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 14px;
+  background: #fff;
+  border: 1.5px solid var(--vc, #000);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 12px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.val-term .val-face.val-front {
+  background: linear-gradient(
+    color-mix(in srgb, var(--vc) 7%, #fff),
+    color-mix(in srgb, var(--vc) 7%, #fff)
+  );
+}
+
+.val-face.val-back {
+  transform: rotateY(180deg);
+  background: color-mix(in srgb, var(--vc, #000) 12%, #fff);
+}
+
+/* corner rank */
+.val-rank {
+  position: absolute;
+  top: 9px;
+  left: 11px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vc, #000);
+  line-height: 1;
+}
+
+.val-rank.val-rank-b {
+  top: auto;
+  left: auto;
+  bottom: 9px;
+  right: 11px;
+  transform: rotate(180deg);
+}
+
+/* --- NSV card --- */
+.val-nsv-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.val-nsv-unit {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.val-hint {
+  position: absolute;
+  bottom: 26px;
+  left: 0;
+  right: 0;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.5);
+  animation: val-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes val-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* --- component card front --- */
+.val-sign-big {
+  font-size: 38px;
+  line-height: 1;
+  color: var(--vc);
+}
+
+.val-name {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.val-base {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- component card back --- */
+.val-back-name {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--vc);
+  margin-bottom: 10px;
+}
+
+.val-back-text {
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.val-back-hint {
+  margin-top: 10px;
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* --- equation glue --- */
+.val-equals {
+  font-size: 26px;
+  font-weight: 300;
+  color: rgba(0, 0, 0, 0.4);
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.val-joiner {
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--vc);
+  padding: 0 1px;
+  line-height: 1;
+}
+
+/* --- worked example, tightened --- */
+.values-example {
+  margin-top: 18px;
+}
+
+/* --- the three dials, compacted into a 3-column strip --- */
+.values-dials {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 28px;
+}
+
+.values-dial-num {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.35);
+  margin-bottom: 6px;
+}
+
+.values-dial h3 {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 5px;
+}
+
+.values-dial p {
+  font-size: 12px;
+  line-height: 1.55;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+/* --- desktop: one card row --- */
+@media (min-width: 900px) {
+  .val-eq-row {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .val-card,
+  .val-slot {
+    flex: 1 1 138px;
+    min-width: 0;
+    max-width: 156px;
+  }
+
+  .val-slot .val-card {
+    flex: none;
+    max-width: none;
+  }
+}
+
+/* --- small screens: tighter budget --- */
+@media (max-width: 767px) {
+  .pin-inner.values-pin {
+    padding: 78px 18px 20px;
+  }
+
+  .values-lead {
+    font-size: 12.5px;
+    max-width: 460px;
+  }
+
+  .val-card,
+  .val-slot {
+    flex: 0 1 104px;
+    min-width: 88px;
+  }
+
+  .val-slot .val-card {
+    flex: none;
+    min-width: 0;
+  }
+
+  .values-dials {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .values-dial p {
+    font-size: 11.5px;
+  }
+}
