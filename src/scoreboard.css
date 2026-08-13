@@ -45,11 +45,12 @@
   transform: rotate(180deg);
 }
 
-/* title column on the LEFT, the live board takes the whole right side */
+/* title column on the LEFT, the live board takes the whole right side;
+   extra right padding keeps the board's edge clear of the fixed QR panel */
 .score-content {
   width: 100%;
   max-width: 1560px;
-  padding: 0 3.5vw;
+  padding: 0 calc(3.5vw + 80px) 0 3.5vw;
   display: grid;
   grid-template-columns: minmax(260px, 0.8fr) 1.7fr;
   gap: clamp(28px, 4vw, 72px);
