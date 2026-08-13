@@ -14,6 +14,48 @@ export const cardTune = {
   bobHand: 10, // hand idle float amplitude (px)
 }
 
+// 08 · the futures composition — card offsets/tilts + hand pose, all
+// tunable LIVE via ?tune (08). Austin sends back the final numbers.
+// locked by Austin via the tuner, 2026-08-13
+export const futuresTune = {
+  cardX: -90,
+  cardY: 0,
+  cardScale: 1.29,
+  cardRotX: 0,
+  cardRotY: 0,
+  cardRotZ: 0,
+  cardFlip: 0, // 0 | 180
+  handDX: 0,
+  handDY: 100,
+  handScale: 1.05,
+  handRotZ: 2.0,
+  handRotX: 0.9,
+  handRotY: 1.4,
+  handMirror: 0, // 0 | 1
+  // the 3D card ON the hand — its own controls, separate from the DOM card
+  hcX: -50,
+  hcY: 30,
+  hcScale: 1,
+  hcTilt: -25, // degrees
+}
+
+// the curtain-pulling hand — locked by Austin, 2026-08-13
+export const curtainTune = {
+  dx: -20,
+  dy: 0,
+  scale: 1.15,
+  rotZ: 1.5,
+}
+
+// 14: the scoreboard fingertips height + the ending hand's horizontal.
+// The ending hand's HEIGHT is locked to the curtain-pull height so the
+// pose never jumps when the slide finishes — ?tune (14手)
+// locked by Austin, 2026-08-13
+export const thanksTune = {
+  x: 1.0,
+  peekY: 0.98, // fingertips clearly visible under the scoreboard
+}
+
 // the 12 finale hand (fractions of vw/vh) — tunable via ?tune (12手);
 // how much of the hand stays in frame at the end of the recommendation
 export const finaleTune = {
@@ -42,6 +84,8 @@ export const hand = {
   cardSpin: true, // false = card settles facing the camera (QR mode)
   qrUrl: null, // dataURL for the QR texture
   performing: false, // true while a scripted sequence owns the hand
+  mirror: 0, // 1 = mirror the hand horizontally (08 tuning option)
+  cardOverride: null, // {dx, dy, scale, tilt} — offsets for the 3D palm card
 }
 
 /*

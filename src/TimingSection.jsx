@@ -124,12 +124,12 @@ export default function TimingSection() {
       if (tp <= 0.1) {
         // section 10 leaves the hand parked at the right edge — hold it there
         setHandTarget(PARK_RIGHT, 0.12)
-        setCard(0)
+        setCard(1) // holding 10's haul — it recolors to the grey ○ en route
       } else if (tp <= 0.2) {
         // travel to slot A, drawing the grey ○ card on the way over
         const t = ease((tp - 0.1) / 0.1)
         setHandTarget(mix(PARK_RIGHT, PLACE_A, t), 0.12)
-        setCard(ease(clamp01((tp - 0.1) / 0.1)))
+        setCard(1)
       } else if (tp <= 0.27) {
         // place "Study first": the 3D card melts into the DOM card fading in
         setHandTarget(PLACE_A, 0.12)

@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
 import HandRig from './HandRig.jsx'
-import { hand, cardTune, modelTune, finaleTune, setHandTarget, setPose, setCard, setCardMode, setDeckTheme } from './handBus.js'
+import { hand, cardTune, modelTune, finaleTune, futuresTune, curtainTune, thanksTune, setHandTarget, setPose, setCard, setCardMode, setDeckTheme } from './handBus.js'
 
 /* Perspective camera positioned so the z=0 plane maps 1 world unit = 1 CSS px.
    Real perspective is what makes the lying-flat hero hand read with depth. */
@@ -102,8 +102,25 @@ function TunePanel() {
     fX: finaleTune.x,
     fY: finaleTune.y,
     fScale: finaleTune.scale,
+    ...futuresTune,
+    cDx: curtainTune.dx,
+    cDy: curtainTune.dy,
+    cScale: curtainTune.scale,
+    cRotZ: curtainTune.rotZ,
+    tX: thanksTune.x,
+    tPeekY: thanksTune.peekY,
   })
   const [mode, setMode] = useState('float') // 'float' | 'held' | 'model'
+  const live = mode === 'futures' || mode === 'curtain' || mode === 'thanks'
+  useEffect(() => {
+    window.__tuneLive = live
+    // the section directors recompute on scroll — kick one so the mode
+    // change takes effect immediately without the user having to scroll
+    window.dispatchEvent(new Event('scroll'))
+    return () => {
+      window.__tuneLive = false
+    }
+  }, [live])
   useEffect(() => {
     const vw = window.innerWidth
     const vh = window.innerHeight
@@ -113,14 +130,16 @@ function TunePanel() {
     const modelPose = { x: vw * v.mX, y: vh * v.mY, scale: v.mScale, rotZ: 2.0, rotX: 1.0, rotY: 1.4 }
     // 12 · the finale pose — open palm with the purple A5 floating above it
     const finalePose = { x: vw * v.fX, y: vh * v.fY, scale: v.fScale, rotZ: 2.0, rotX: 1.0, rotY: 1.4 }
-    setDeckTheme(mode === 'finale' ? { color: '#7B5EA7', glyph: '★' } : null)
-    setHandTarget(
-      mode === 'held' ? heldPose : mode === 'model' ? modelPose : mode === 'finale' ? finalePose : floatPose,
-      0.15,
-    )
-    setPose(mode === 'held' ? 'grip' : 'flat')
-    setCard(mode === 'model' ? 0 : 1)
-    setCardMode(mode === 'held' ? 1 : 0)
+    if (!live) {
+      setDeckTheme(mode === 'finale' ? { color: '#7B5EA7', glyph: '★' } : null)
+      setHandTarget(
+        mode === 'held' ? heldPose : mode === 'model' ? modelPose : mode === 'finale' ? finalePose : floatPose,
+        0.15,
+      )
+      setPose(mode === 'held' ? 'grip' : 'flat')
+      setCard(mode === 'model' ? 0 : 1)
+      setCardMode(mode === 'held' ? 1 : 0)
+    }
     Object.assign(cardTune, {
       floatY: v.floatY,
       floatScale: v.floatScale,
@@ -129,7 +148,19 @@ function TunePanel() {
     })
     Object.assign(modelTune, { x: v.mX, y: v.mY, scale: v.mScale })
     Object.assign(finaleTune, { x: v.fX, y: v.fY, scale: v.fScale })
-  }, [v, mode])
+    Object.assign(futuresTune, {
+      cardX: v.cardX, cardY: v.cardY, cardScale: v.cardScale,
+      cardRotX: v.cardRotX, cardRotY: v.cardRotY, cardRotZ: v.cardRotZ, cardFlip: v.cardFlip,
+      handDX: v.handDX, handDY: v.handDY, handScale: v.handScale,
+      handRotZ: v.handRotZ, handRotX: v.handRotX, handRotY: v.handRotY, handMirror: v.handMirror,
+      hcX: v.hcX, hcY: v.hcY, hcScale: v.hcScale, hcTilt: v.hcTilt,
+    })
+    Object.assign(curtainTune, { dx: v.cDx, dy: v.cDy, scale: v.cScale, rotZ: v.cRotZ })
+    Object.assign(thanksTune, { x: v.tX, peekY: v.tPeekY })
+    // LIVE modes: the page directors own the hand — poke them so every
+    // slider drag applies instantly (they only run on scroll events)
+    if (live) window.dispatchEvent(new Event('scroll'))
+  }, [v, mode, live])
   const row = (k, min, max, label, step = 0.01) => (
     <label key={k}>
       <span>{label}</span>
@@ -153,7 +184,13 @@ function TunePanel() {
         <button className="tune-toggle" onClick={() => setMode('held')} disabled={mode === 'held'}>手持牌组</button>
         <button className="tune-toggle" onClick={() => setMode('model')} disabled={mode === 'model'}>07模型</button>
         <button className="tune-toggle" onClick={() => setMode('finale')} disabled={mode === 'finale'}>12手</button>
+        <button className="tune-toggle" onClick={() => setMode('futures')} disabled={mode === 'futures'}>08</button>
+        <button className="tune-toggle" onClick={() => setMode('curtain')} disabled={mode === 'curtain'}>幕布</button>
+        <button className="tune-toggle" onClick={() => setMode('thanks')} disabled={mode === 'thanks'}>14手</button>
       </label>
+      {(mode === 'futures' || mode === 'curtain' || mode === 'thanks') && (
+        <div className="tune-live-hint">LIVE 模式:滚动到对应段落,边滑边调,页面动画照常运行</div>
+      )}
       {mode === 'float' && (
         <>
           {row('rotZ', 0, 3.2, '手 rotZ 平面旋转')}
@@ -182,6 +219,52 @@ function TunePanel() {
           {row('fX', 0.3, 0.85, '12 手横向位置 (vw)')}
           {row('fY', 0.3, 1.0, '12 手纵向位置 (vh)')}
           {row('fScale', 0.6, 1.6, '12 手大小')}
+        </>
+      )}
+      {mode === 'futures' && (
+        <>
+          {row('cardX', -350, 350, '牌 横向偏移 px', 1)}
+          {row('cardY', -350, 350, '牌 纵向偏移 px', 1)}
+          {row('cardScale', 0.4, 2, '牌 大小')}
+          {row('cardRotX', -60, 60, '牌 X 倾斜 °', 1)}
+          {row('cardRotY', -60, 60, '牌 Y 倾斜 °', 1)}
+          {row('cardRotZ', -45, 45, '牌 Z 旋转 °', 1)}
+          <label>
+            <span>牌 翻面</span>
+            <button className="tune-toggle" onClick={() => setV((s) => ({ ...s, cardFlip: s.cardFlip ? 0 : 180 }))}>
+              {v.cardFlip ? '背面' : '正面'}
+            </button>
+          </label>
+          {row('handDX', -350, 350, '手 横向偏移 px', 1)}
+          {row('handDY', -100, 420, '手 纵向偏移 px', 1)}
+          {row('handScale', 0.4, 1.6, '手 大小')}
+          {row('handRotZ', -3.2, 3.2, '手 rotZ')}
+          {row('handRotX', -1.6, 1.6, '手 rotX')}
+          {row('handRotY', -0.8, 4.6, '手 rotY')}
+          <label>
+            <span>手 镜像</span>
+            <button className="tune-toggle" onClick={() => setV((s) => ({ ...s, handMirror: s.handMirror ? 0 : 1 }))}>
+              {v.handMirror ? '开' : '关'}
+            </button>
+          </label>
+          {row('hcX', -250, 250, '手上牌 横向 px', 1)}
+          {row('hcY', -250, 300, '手上牌 纵向 px', 1)}
+          {row('hcScale', 0.3, 2, '手上牌 大小')}
+          {row('hcTilt', -60, 60, '手上牌 倾斜 °', 1)}
+        </>
+      )}
+      {mode === 'curtain' && (
+        <>
+          {row('cDx', -240, 320, '幕布手 横向偏移 px', 1)}
+          {row('cDy', -240, 240, '幕布手 纵向偏移 px', 1)}
+          {row('cScale', 0.3, 1.3, '幕布手 大小')}
+          {row('cRotZ', -3.2, 3.2, '幕布手 旋转')}
+        </>
+      )}
+      {mode === 'thanks' && (
+        <>
+          {row('tPeekY', 0.95, 1.35, '14 指尖高度 (越小越高)')}
+          {row('tX', 0.6, 1.15, '谢幕手 横向 (vw) — 高度已锁定')}
         </>
       )}
     </div>

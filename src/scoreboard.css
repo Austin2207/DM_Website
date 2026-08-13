@@ -140,18 +140,20 @@
   }
 }
 
-/* the theatrical curtain — pulled across the stage by the hand */
+/* the WHITE ending slide — pulled in by the hand, then it IS the stage.
+   Brighter than the page behind it; the leading edge stays visible. */
 .score-curtain {
   position: fixed;
   inset: 0;
-  z-index: 68;
-  background: #121214;
+  z-index: 58; /* content < curtain < hand — the pull reads physical */
+  background: #ffffff;
   background-image: repeating-linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.045) 0 2px,
-    transparent 2px 44px
+    rgba(0, 0, 0, 0.022) 0 2px,
+    transparent 2px 46px
   );
-  box-shadow: 26px 0 60px rgba(0, 0, 0, 0.4);
+  border-right: 1px solid rgba(0, 0, 0, 0.14);
+  box-shadow: 34px 0 70px rgba(0, 0, 0, 0.22);
   pointer-events: none;
   will-change: transform;
 }
@@ -160,8 +162,7 @@
   content: '★';
   position: absolute;
   right: 34px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.22);
-  font-size: 22px;
+  bottom: 30px;
+  color: color-mix(in srgb, #7b5ea7 30%, transparent);
+  font-size: 20px;
 }

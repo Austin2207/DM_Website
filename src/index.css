@@ -6,7 +6,7 @@
 
 html,
 body {
-  background: #ffffff;
+  background: #f7f7f8;
   color: #000000;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -1757,4 +1757,46 @@ a.btn-secondary {
 
 .caveat-tags {
   margin-top: 30px;
+}
+
+/* header: one clean label, not a control */
+.nav-plain-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.045);
+  border-radius: 9999px;
+  padding: 10px 18px;
+  white-space: nowrap;
+}
+
+/* thanks + credits float above the white ending slide */
+.thanks-section {
+  position: relative;
+  z-index: 69;
+  background: transparent;
+}
+
+.credits {
+  position: relative;
+  z-index: 69;
+}
+
+.tune-live-hint {
+  font-size: 10.5px;
+  color: #7b5ea7;
+  padding: 4px 0 8px;
+  max-width: 240px;
+  line-height: 1.5;
+}
+
+/* 08 · the futures card rides ABOVE the hand layer (card covers hand) */
+.future-card-portal {
+  position: fixed;
+  top: 28vh;
+  right: 9vw;
+  width: 250px;
+  z-index: 62;
+  pointer-events: none;
 }

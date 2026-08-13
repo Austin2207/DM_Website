@@ -262,6 +262,7 @@ export default function HandRig({ useModel = false }) {
   const faceKey = useRef('a5')
   const qrTex = useRef(null)
   const diagramTex = useRef(null)
+  const futuresTex = useRef(null)
 
   useFrame((state, delta) => {
     const cur = tickHand(delta)
@@ -271,7 +272,7 @@ export default function HandRig({ useModel = false }) {
       // css px (top-left origin) -> world (centered, +y up)
       root.current.position.x = cur.x - size.width / 2
       root.current.position.y = size.height / 2 - cur.y
-      root.current.scale.setScalar(cur.scale)
+      root.current.scale.set(hand.mirror ? -cur.scale : cur.scale, cur.scale, cur.scale)
     }
     if (inner.current) {
       // idle life: gentle bob + slow 3D sway; base orientation comes from the bus.
@@ -318,17 +319,25 @@ export default function HandRig({ useModel = false }) {
       spinAngle.current = THREE.MathUtils.damp(spinAngle.current, tgt, 6, 0.016)
     }
     if (cardGroup.current && inner.current) {
-      const sizeMul = THREE.MathUtils.lerp(cardTune.floatScale, cardTune.heldScale, m)
+      const ov = hand.cardOverride
+      const sizeMul =
+        THREE.MathUtils.lerp(cardTune.floatScale, cardTune.heldScale, m) * (ov ? ov.scale : 1)
       cardGroup.current.scale.setScalar(Math.max(0.0001, cardScale.current * sizeMul))
       cardGroup.current.visible = cardScale.current > 0.02
       // the card rides the hand's idle bob so their spacing never drifts
       const bobY = inner.current.position.y
-      V_FLOAT.set(-20, cardTune.floatY + bobY + Math.sin(t * 1.15) * 8 * (1 - m), 140)
+      V_FLOAT.set(
+        -20 + (ov ? ov.dx : 0),
+        cardTune.floatY + (ov ? ov.dy : 0) + bobY + Math.sin(t * 1.15) * 8 * (1 - m),
+        140,
+      )
       // held deck: bottom in the palm, top well past the fingertips
-      V_HELD.set(0, cardTune.heldY, 40).applyQuaternion(inner.current.quaternion)
+      V_HELD.set(ov ? ov.dx : 0, cardTune.heldY + (ov ? ov.dy : 0), 40).applyQuaternion(inner.current.quaternion)
       V_HELD.y += bobY
       cardGroup.current.position.lerpVectors(V_FLOAT, V_HELD, m)
-      Q_FLOAT.setFromEuler(E_TMP.set(0, spinAngle.current, Math.sin(spinAngle.current) * 0.05))
+      Q_FLOAT.setFromEuler(
+        E_TMP.set(0, spinAngle.current, Math.sin(spinAngle.current) * 0.05 + (ov ? ov.tilt : 0)),
+      )
       Q_HELD.copy(inner.current.quaternion)
       cardGroup.current.quaternion.slerpQuaternions(Q_FLOAT, Q_HELD, m)
     }
@@ -343,7 +352,9 @@ export default function HandRig({ useModel = false }) {
           ? 'qr'
           : hand.cardFace === 'diagram'
             ? 'diagram'
-            : 'a5'
+            : hand.cardFace === 'futures'
+              ? 'futures'
+              : 'a5'
       if (want !== faceKey.current) {
         faceKey.current = want
         if (want === 'qr') {
@@ -356,6 +367,48 @@ export default function HandRig({ useModel = false }) {
             qrTex.current = tx
           }
           frontMat.current.map = qrTex.current
+        } else if (want === 'futures') {
+          if (!futuresTex.current) {
+            // a sampled-future card face: one draw, all six alternatives
+            const c = document.createElement('canvas')
+            c.width = 512
+            c.height = 716
+            const g = c.getContext('2d')
+            g.fillStyle = '#ffffff'
+            g.fillRect(0, 0, c.width, c.height)
+            g.strokeStyle = 'rgba(0,0,0,0.22)'
+            g.lineWidth = 6
+            g.strokeRect(14, 14, c.width - 28, c.height - 28)
+            g.fillStyle = 'rgba(0,0,0,0.45)'
+            g.font = '600 26px Inter, sans-serif'
+            g.textAlign = 'left'
+            g.fillText('FUTURE #316', 48, 88)
+            g.strokeStyle = 'rgba(0,0,0,0.14)'
+            g.lineWidth = 2
+            g.beginPath(); g.moveTo(48, 112); g.lineTo(464, 112); g.stroke()
+            g.fillStyle = '#111'
+            g.font = '500 30px Inter, sans-serif'
+            const rows = ['High addiction', 'Base effectiveness', 'Costly federal cases']
+            rows.forEach((t, i) => g.fillText(t, 48, 172 + i * 56))
+            g.beginPath(); g.moveTo(48, 356); g.lineTo(464, 356); g.stroke()
+            const alts = [
+              ['A5  −$4.6B · 1st', '#7B5EA7', '700'],
+              ['A2  −$5.4B', 'rgba(0,0,0,0.55)', '500'],
+              ['A4  −$5.5B', 'rgba(0,0,0,0.55)', '500'],
+              ['A3  −$7.9B', 'rgba(0,0,0,0.55)', '500'],
+              ['A1  −$10.2B', 'rgba(0,0,0,0.55)', '500'],
+              ['A6  −$17.8B', 'rgba(0,0,0,0.55)', '500'],
+            ]
+            alts.forEach(([t, col, w], i) => {
+              g.fillStyle = col
+              g.font = w + ' 27px Inter, sans-serif'
+              g.fillText(t, 48, 410 + i * 46)
+            })
+            const tx = new THREE.CanvasTexture(c)
+            tx.anisotropy = 4
+            futuresTex.current = tx
+          }
+          frontMat.current.map = futuresTex.current
         } else if (want === 'diagram') {
           if (!diagramTex.current) {
             // draw the landscape diagram onto a portrait card face

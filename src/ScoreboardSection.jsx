@@ -12,6 +12,8 @@ import {
   setCardSpin,
   setDeckTheme,
   finaleTune,
+  curtainTune,
+  thanksTune,
 } from './hand3d/handBus.js'
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v))
@@ -64,16 +66,14 @@ export default function ScoreboardSection() {
         setOnStage(show)
       }
 
-      // the curtain: covers during [0.62–0.9], then keeps travelling right
-      // as the Thank-you section arrives — a wipe that masks the switch
-      const coverT = ease(clamp01((sp - 0.62) / 0.28))
-      const thanks = document.querySelector('#thanks')?.getBoundingClientRect()
-      const revealT = thanks ? ease(clamp01((vh - thanks.top) / (vh * 0.7))) : 0
-      curtainRaw.set(-100 + coverT * 100 + revealT * 100)
+      // the WHITE ending slide: pulled in from the left over [0.62–0.92] and
+      // it STAYS — it becomes the final stage; the Thank-you fades in on it
+      const coverT = ease(clamp01((sp - 0.62) / 0.3))
+      curtainRaw.set(-100 + coverT * 100)
 
       if (!active || hand.performing) return
       const q = new URLSearchParams(window.location.search)
-      if (q.has('tune') || q.get('rz') || q.get('rx') || q.get('ry')) return
+      if ((q.has('tune') && !window.__tuneLive) || q.get('rz') || q.get('rx') || q.get('ry')) return
       const vw = window.innerWidth
       const desktop = isDesktop()
 
@@ -85,17 +85,28 @@ export default function ScoreboardSection() {
         ? { x: vw * 0.5, y: vh * 0.42, scale: 0.95, rotZ: -0.05, rotX: -0.35, rotY: Math.PI + 0.1 }
         : { x: vw * 0.5, y: vh * 0.4, scale: 0.68, rotZ: -0.05, rotX: -0.35, rotY: Math.PI + 0.1 }
       const PEEK = desktop
-        ? { x: vw * 0.5, y: vh * 1.16, scale: 0.9, rotZ: 0, rotX: -0.1, rotY: Math.PI + 0.15 }
-        : { x: vw * 0.5, y: vh * 1.12, scale: 0.65, rotZ: 0, rotX: -0.1, rotY: Math.PI + 0.15 }
-      // gripping the curtain's leading edge
+        ? { x: vw * 0.5, y: vh * thanksTune.peekY, scale: 0.9, rotZ: 0, rotX: -0.1, rotY: Math.PI + 0.15 }
+        : { x: vw * 0.5, y: vh * (thanksTune.peekY - 0.04), scale: 0.65, rotZ: 0, rotX: -0.1, rotY: Math.PI + 0.15 }
+      // dragging fabric sideways — only the fingers and a sliver of hand
+      // need to show at the edge; Austin tunes this via ?tune (幕布)
       const curtainGrip = (t) => ({
-        x: Math.min(Math.max(t * vw - 26, 40), vw + 200),
-        y: vh * 0.5,
-        scale: desktop ? 0.8 : 0.6,
-        rotZ: 0,
+        x: Math.min(Math.max(t * vw + curtainTune.dx, 40), vw + 240),
+        y: vh * 0.5 + curtainTune.dy,
+        scale: (desktop ? 1 : 0.75) * curtainTune.scale,
+        rotZ: curtainTune.rotZ,
         rotX: -0.1,
         rotY: Math.PI + 0.1,
       })
+      // resting after the slide settles: SAME height and size as the pull
+      // (no jump), only the horizontal is adjustable — ?tune (14手)
+      const REST = {
+        x: vw * thanksTune.x,
+        y: vh * 0.5 + curtainTune.dy,
+        scale: (desktop ? 1 : 0.75) * curtainTune.scale,
+        rotZ: curtainTune.rotZ,
+        rotX: -0.1,
+        rotY: Math.PI + 0.1,
+      }
 
       setDeckTheme({ color: '#7B5EA7', glyph: '★' })
       setCardFace('deck')
@@ -131,10 +142,17 @@ export default function ScoreboardSection() {
         setHandTarget(mix(PEEK, curtainGrip(0), t), 0.12)
         setPose('grip')
         setCard(0)
-      } else {
-        // ...and PULLS the curtain across the stage, left to right
-        const coverNow = ease(clamp01((sp - 0.62) / 0.28))
+      } else if (sp <= 0.92) {
+        // ...and PULLS the white ending slide across, left to right,
+        // visibly attached to its leading edge the whole way
+        const coverNow = ease(clamp01((sp - 0.62) / 0.3))
         setHandTarget(curtainGrip(coverNow), 0.12)
+        setPose('grip')
+        setCard(0)
+      } else {
+        // slide fully extended — the hand rests near the right edge (tunable),
+        // and the Thank-you fades in on the white slide
+        setHandTarget(REST, 0.12)
         setPose('grip')
         setCard(0)
       }

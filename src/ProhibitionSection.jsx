@@ -41,21 +41,24 @@ const CARD_WINS = [
 ]
 
 /*
- * 10 · The counterintuitive one — the hand enters from the LEFT edge,
- * places the first chain card ("Federal ban"), parks at the right, and
- * the rest of the causal chain cascades in one card at a time.
+ * 10 · The counterintuitive one — the hand starts parked at the LEFT edge
+ * (09 leaves it there), places the first chain card ("Federal ban"),
+ * returns to the left while the causal chain cascades in, then exits with
+ * a LEFT→RIGHT collection sweep that gathers the chain into its deck and
+ * ends parked at the right for section 11.
  */
 export default function ProhibitionSection() {
   const stageRef = useRef(null)
   const chainRef = useRef(null)
   const card1Ref = useRef(null)
+  const collectDirtyRef = useRef(false)
 
   const raw = useMotionValue(0)
   const p = useSpring(raw, { stiffness: 150, damping: 28 })
 
   // the whiteboard rule: everything fades in in place, everything fades
-  // out in place — the wrapper handles the exit
-  const wrapOp = useTransform(p, (v) => 1 - clamp01((v - 0.95) / 0.05))
+  // out in place — the wrapper fade overlaps the collection sweep's tail
+  const wrapOp = useTransform(p, (v) => 1 - clamp01((v - 0.93) / 0.07))
   const headOp = useTransform(p, (v) => clamp01((v - 0.02) / 0.06))
   const supportOp = useTransform(p, (v) => clamp01((v - 0.32) / 0.14))
   const quoteOp = useTransform(p, (v) => clamp01((v - 0.78) / 0.07))
@@ -75,6 +78,18 @@ export default function ProhibitionSection() {
       const pp = clamp01(-stage.top / (stage.height - vh))
       raw.set(pp)
 
+      // reverse scroll out of the collect: clear the sweep's inline opacities
+      // once so the chain row is pristine again
+      if (pp < 0.86 && collectDirtyRef.current) {
+        collectDirtyRef.current = false
+        stageRef.current
+          ?.querySelectorAll('.proh-chain .proh-card, .proh-chain .proh-arrow')
+          .forEach((el) => {
+            el.style.opacity = ''
+            el.style.transition = ''
+          })
+      }
+
       if (!active || hand.performing) return
       const q = new URLSearchParams(window.location.search)
       if (q.has('tune') || q.get('rz') || q.get('rx') || q.get('ry')) return
@@ -86,16 +101,12 @@ export default function ProhibitionSection() {
       const slot1 = card1Ref.current?.getBoundingClientRect()
       if (!chain || !slot1) return
 
-      // 09 leaves the hand parked below the frame
-      const BELOW = desktop
-        ? { x: vw * 0.5, y: vh * 1.6, scale: 0.75, rotZ: -0.05, rotX: -0.1, rotY: Math.PI + 0.2 }
-        : { x: vw * 0.5, y: vh * 1.6, scale: 0.55, rotZ: -0.05, rotX: -0.1, rotY: Math.PI + 0.2 }
       const placeScale = desktop ? 0.62 : 0.45
-      // just off the LEFT edge, at chain-row height
-      const LEFT_OFF = {
-        x: -160,
-        y: chain.bottom - 35,
-        scale: placeScale,
+      // 09 leaves the hand parked at the LEFT edge
+      const PARK_LEFT = {
+        x: desktop ? 70 : 50,
+        y: vh * 0.52,
+        scale: desktop ? 0.55 : 0.45,
         rotZ: 0.05,
         rotX: -0.12,
         rotY: Math.PI + 0.1,
@@ -123,27 +134,73 @@ export default function ProhibitionSection() {
 
       let target
       if (pp <= 0.06) {
-        target = BELOW // only the heading is fading in up top
-        setCard(0)
-      } else if (pp <= 0.11) {
-        // slip from below the frame to just off the left edge
-        target = mix(BELOW, LEFT_OFF, ease((pp - 0.06) / 0.05))
-        setCard(0)
+        // approach: 09 finishes with the hand already parked at the left
+        target = PARK_LEFT
+        setCard(1) // holding 09's card — it recolors to the A6 teal en route
       } else if (pp <= 0.24) {
-        // enter from the LEFT — the A6 deck fades in over the first half
-        target = mix(LEFT_OFF, PLACE1, ease((pp - 0.11) / 0.13))
-        setCard(clamp01((pp - 0.11) / 0.065))
+        // slide from the left park to card 1's slot, card already in hand
+        // over the first half of the travel
+        target = mix(PARK_LEFT, PLACE1, ease((pp - 0.06) / 0.18))
+        setCard(1)
       } else if (pp <= 0.32) {
         // place card 1: the 3D card melts into the DOM card
         target = PLACE1
         setCard(1 - clamp01((pp - 0.24) / 0.08))
       } else if (pp <= 0.46) {
-        // withdraw to the right edge while the supporting text fades in
-        target = mix(PLACE1, PARK_RIGHT, ease((pp - 0.32) / 0.14))
+        // return to the left park while the supporting text fades in
+        target = mix(PLACE1, PARK_LEFT, ease((pp - 0.32) / 0.14))
         setCard(0)
+      } else if (pp <= 0.88) {
+        // idle at the left while the chain cascades + completion buffer
+        target = PARK_LEFT
+        setCard(0)
+      } else if (pp <= 0.98) {
+        // THE COLLECT: the hand sweeps the chain row left -> right,
+        // gathering the five cards into a growing deck. Visibility is
+        // recomputed from handX every tick, so reverse scrolling restores
+        // the row. Arrows hide together with the card that precedes them.
+        const t = clamp01((pp - 0.88) / 0.1)
+        const handX = lerp(chain.left - 60, chain.right + 90, t)
+        const links = Array.from(stageRef.current.querySelectorAll('.proh-chain .proh-link'))
+        let prevHidden = false
+        for (const link of links) {
+          const cardEl = link.querySelector('.proh-card')
+          const arrowEl = link.querySelector('.proh-arrow')
+          if (!cardEl) continue
+          const r = cardEl.getBoundingClientRect()
+          const hidden = handX >= r.left + r.width / 2
+          cardEl.style.transition = 'opacity 0.25s'
+          cardEl.style.opacity = hidden ? '0' : ''
+          if (arrowEl) {
+            arrowEl.style.transition = 'opacity 0.25s'
+            arrowEl.style.opacity = prevHidden ? '0' : ''
+          }
+          prevHidden = hidden
+        }
+        collectDirtyRef.current = true
+        target = {
+          x: Math.min(Math.max(handX, 70), vw - 70),
+          y: chain.bottom - 35,
+          scale: placeScale,
+          rotZ: 0.05,
+          rotX: -0.12,
+          rotY: Math.PI + 0.1,
+        }
+        setCard(t)
       } else {
-        target = PARK_RIGHT // idle while the chain cascades
-        setCard(0)
+        // after the collect: settle into the right-edge park KEEPING the
+        // gathered cards — section 11 starts with them in hand
+        const t = ease(clamp01((pp - 0.98) / 0.02))
+        const SWEEP_END = {
+          x: Math.min(Math.max(chain.right + 90, 70), vw - 70),
+          y: chain.bottom - 35,
+          scale: placeScale,
+          rotZ: 0.05,
+          rotX: -0.12,
+          rotY: Math.PI + 0.1,
+        }
+        target = mix(SWEEP_END, PARK_RIGHT, t)
+        setCard(1) // the swept-up cards stay in hand for section 11
       }
       setHandTarget(target, 0.12)
     }

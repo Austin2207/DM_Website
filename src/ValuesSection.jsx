@@ -80,7 +80,7 @@ const DIALS = [
 /*
  * 06 · Clear values — a pinned hand-stage. The hand carries the deck in
  * from section 05, PLACES the Net-social-value card into its dashed slot
- * on the whiteboard, then parks at the right edge while the audience
+ * on the whiteboard, then parks at the left edge while the audience
  * clicks the card open into the full equation.
  */
 export default function ValuesSection() {
@@ -159,6 +159,14 @@ export default function ValuesSection() {
         rotX: -0.12,
         rotY: Math.PI + 0.1,
       }
+      const PARK_LEFT = {
+        x: desktop ? 70 : 50,
+        y: vh * 0.52,
+        scale: desktop ? 0.55 : 0.45,
+        rotZ: 0.05,
+        rotX: -0.12,
+        rotY: Math.PI + 0.1,
+      }
       const slot = slotRef.current?.getBoundingClientRect()
       const PLACE = slot
         ? {
@@ -190,17 +198,17 @@ export default function ValuesSection() {
         target = PLACE
         setCard(1 - clamp01((pp - 0.28) / 0.08))
       } else if (pp <= 0.5) {
-        // withdraw to the right edge, empty-handed
+        // withdraw to the left edge, empty-handed
         const t = ease((pp - 0.36) / 0.14)
-        target = mix(PLACE, PARK_RIGHT, t)
+        target = mix(PLACE, PARK_LEFT, t)
         setCard(0)
       } else if (pp <= 0.78) {
-        // interactive hold: motionless at the right edge while the audience
+        // interactive hold: motionless at the left edge while the audience
         // opens the card and flips the terms
-        target = PARK_RIGHT
+        target = PARK_LEFT
         setCard(0)
       } else if (pp <= 0.94) {
-        // THE COLLECT: the hand sweeps the equation row right -> left,
+        // THE COLLECT: the hand sweeps the equation row left -> right,
         // gathering the cards into a growing deck. Visibility is recomputed
         // from handX every tick, so reverse scrolling restores the row.
         // When the fan was never opened, only the NSV card is there to take.
@@ -209,7 +217,7 @@ export default function ValuesSection() {
           ?.getBoundingClientRect()
         if (rowRect) {
           const t = clamp01((pp - 0.78) / 0.16)
-          const handX = lerp(rowRect.right + 90, rowRect.left - 60, t)
+          const handX = lerp(rowRect.left - 60, rowRect.right + 90, t)
           const cards = Array.from(
             stageRef.current.querySelectorAll(
               '.val-eq-row .val-card, .val-eq-row .val-joiner, .val-eq-row .val-equals'
@@ -218,7 +226,7 @@ export default function ValuesSection() {
           for (const el of cards) {
             const r = el.getBoundingClientRect()
             el.style.transition = 'opacity 0.25s'
-            el.style.opacity = handX <= r.left + r.width / 2 ? '0' : ''
+            el.style.opacity = handX >= r.left + r.width / 2 ? '0' : ''
           }
           collectDirtyRef.current = true
           target = {
@@ -235,16 +243,17 @@ export default function ValuesSection() {
           setCard(0)
         }
       } else {
-        // after the collect: back toward the right-edge park while the
-        // gathered deck melts away — section 07 expects the hand parked at
-        // PARK_RIGHT with card 0, so end there exactly
+        // after the collect: the hand is already at the right end of the
+        // sweep, so it continues naturally on to the right-edge park while
+        // the gathered deck melts away — section 07 expects the hand parked
+        // at PARK_RIGHT with card 0, so end there exactly
         const t = ease(clamp01((pp - 0.94) / 0.06))
         const rowRect = stageRef.current
           ?.querySelector('.val-eq-row')
           ?.getBoundingClientRect()
         const SWEEP_END = rowRect
           ? {
-              x: Math.min(Math.max(rowRect.left - 60, 70), vw - 70),
+              x: Math.min(Math.max(rowRect.right + 90, 70), vw - 70),
               y: rowRect.bottom - 35,
               scale: desktop ? 0.62 : 0.45,
               rotZ: 0.05,
@@ -253,7 +262,7 @@ export default function ValuesSection() {
             }
           : PARK_RIGHT
         target = mix(SWEEP_END, PARK_RIGHT, t)
-        setCard(1 - clamp01((pp - 0.94) / 0.06))
+        setCard(1) // the gathered card STAYS in hand — 07 continues the trick
       }
       setHandTarget(target, 0.12)
     }

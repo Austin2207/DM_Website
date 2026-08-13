@@ -4,6 +4,7 @@ import { motion, useMotionValue, useSpring, useTransform } from 'motion/react'
 import {
   hand,
   modelTune,
+  futuresTune,
   setHandTarget,
   setPose,
   setCard,
@@ -55,7 +56,11 @@ export default function ModelSection() {
     Math.min(clamp01((v - 0.02) / 0.06), 1 - clamp01((v - 0.32) / 0.08)),
   )
   const diagOp = useTransform(p, (v) => clamp01((v - 0.32) / 0.1) * out(v))
-  const diagScale = useTransform(p, (v) => 0.5 + 0.5 * ease(clamp01((v - 0.32) / 0.24)))
+  // the board GROWS from the palm card and SHRINKS back into it at the exit
+  const diagScale = useTransform(
+    p,
+    (v) => (0.5 + 0.5 * ease(clamp01((v - 0.32) / 0.24))) * (1 - 0.55 * ease(clamp01((v - 0.94) / 0.05))),
+  )
   const appearOps = UNC.map((_, i) =>
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useTransform(p, (v) => clamp01((v - (0.56 + i * 0.035)) / 0.05) * out(v)),
@@ -101,20 +106,23 @@ export default function ModelSection() {
         ? { x: vw * modelTune.x, y: vh * modelTune.y, scale: modelTune.scale, rotZ: 2.0, rotX: 1.0, rotY: 1.4 }
         : { x: vw * 0.5, y: vh * (modelTune.y + 0.04), scale: modelTune.scale * 0.64, rotZ: 2.0, rotX: 1.0, rotY: 1.4 }
 
-      setCardMode(0)
       setCardSpin(true)
-      setCardFace(mp <= 0.4 ? 'diagram' : 'deck')
+      hand.cardOverride = null
+      setCardFace(mp <= 0.4 || mp > 0.9 ? 'diagram' : 'deck')
       if (mp > 0) {
         if (mp <= 0.12) {
-          // the hand opens right-of-center; the diagram card materializes
+          // the hand turns over — the card it carried out of 06 stays put,
+          // blending from gripped to floating: one uninterrupted trick
           const t = ease(mp / 0.12)
           setHandTarget(mix(PARK, OPEN_RIGHT, t), 0.12)
           setPose(t > 0.4 ? 'flat' : 'grip')
-          setCard(clamp01((mp - 0.06) / 0.08))
+          setCardMode(1 - t)
+          setCard(1)
         } else if (mp <= 0.32) {
           // INTRO BUFFER: title left, spinning diagram card on the palm
           setHandTarget(OPEN_RIGHT, 0.12)
           setPose('flat')
+          setCardMode(0)
           setCard(1)
         } else if (mp <= 0.52) {
           // the title fades; the hand CARRIES the card to center and down
@@ -122,23 +130,43 @@ export default function ModelSection() {
           const t = ease((mp - 0.32) / 0.2)
           setHandTarget(mix(OPEN_RIGHT, TUNE, t), 0.12)
           setPose('flat')
+          setCardMode(0)
           setCard(1 - clamp01((mp - 0.32) / 0.08))
         } else if (mp <= 0.94) {
           // labels appear + light up, then the long completion buffer
           setHandTarget(TUNE, 0.12)
           setPose('flat')
+          setCardMode(0)
           setCard(0)
         } else {
-          // deliberate scroll: dissolve, hand sinks — straight into 08
+          // deliberate scroll: the board dissolves and the hand — never
+          // disappearing — glides over to present 08's futures card
+          const fr0 = document.querySelector('.future-card-portal')?.getBoundingClientRect()
+          const fRect = fr0 && fr0.width > 10 ? fr0 : null
+          const T = futuresTune
+          const PRESENT = fRect
+            ? {
+                x: Math.min(Math.max(fRect.left + fRect.width / 2 + T.handDX, 70), vw - 60),
+                y: Math.min(fRect.bottom + T.handDY, vh * 0.94),
+                scale: (desktop ? 1 : 0.72) * T.handScale,
+                rotZ: T.handRotZ,
+                rotX: T.handRotX,
+                rotY: T.handRotY,
+              }
+            : desktop
+              ? { x: vw * 0.82, y: vh * 0.75, scale: 0.85, rotZ: 2.0, rotX: 1.0, rotY: 1.4 }
+              : { x: vw * 0.5, y: vh * 0.72, scale: 0.6, rotZ: 2.0, rotX: 1.0, rotY: 1.4 }
           const t = ease((mp - 0.94) / 0.06)
-          setHandTarget(mix(TUNE, { ...TUNE, y: vh * 1.6 }, t), 0.12)
+          setHandTarget(mix(TUNE, PRESENT, t), 0.12)
           setPose('flat')
-          setCard(0)
+          setCardMode(0)
+          setCard(t) // the shrinking board lands back on the palm — CAUGHT
         }
       } else {
         setHandTarget(PARK, 0.12)
         setPose('grip')
-        setCard(0)
+        setCardMode(1)
+        setCard(1) // still holding the card collected at the end of 06
       }
     }
     director()
